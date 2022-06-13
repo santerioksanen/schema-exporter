@@ -1,16 +1,14 @@
 from enum import Enum
 import unittest
-from marshmallow import fields
-from marshmallow import Schema
+from marshmallow import Schema, fields
 
 from marshmallow_enum import EnumField
 
 from marshmallow_export.languages._abstract import AbstractLanguage
-from marshmallow_export.languages._abstract import Mapping
+from marshmallow_export.types import Mapping, SchemaInfo
 
-from typing import Tuple
-from typing import Dict
-from typing import List
+from typing import Tuple, Dict
+
 
 class FooSchema(Schema):
     pass
@@ -24,8 +22,16 @@ class NestingSchema(Schema):
     nested = fields.Nested(NestedSchema)
 
 
+class DeeplyNestedSchema(Schema):
+    nested = fields.Nested(NestingSchema)
+
+
 class ListNestingSchema(Schema):
     nested = fields.List(fields.Nested(NestedSchema))
+
+
+class DeeplyNestedListSchema(Schema):
+    nested = fields.List(fields.Nested(ListNestingSchema))
 
 
 class BarEnum(Enum):
@@ -82,7 +88,7 @@ class AbstractLanguageTests(unittest.TestCase):
     
     def test_expand_nested(self):
         schemas = {
-            'foo': set([NestingSchema]),
+            'foo': {NestingSchema: SchemaInfo()},
         }
         enums = dict()
 
@@ -102,10 +108,88 @@ class AbstractLanguageTests(unittest.TestCase):
         )
         self.assertEqual(len(tl.schemas['foo']), 2)
         self.assertEqual(len(tl.enums['foo']), 0)
+
+        tl._add_dependencies_for_schemas()
+        tl._add_ordering_to_schemas()
+
+        self.assertEqual(
+            tl.schemas['foo'][NestingSchema].ordering,
+            1
+        )
+        self.assertEqual(
+            tl.schemas['foo'][NestedSchema].ordering,
+            0
+        )
+        self.assertTrue(
+            NestingSchema in tl.schemas['foo'][NestedSchema].nested_by
+        )
+        self.assertTrue(
+            NestedSchema in tl.schemas['foo'][NestingSchema].nests
+        )
+    
+    def test_expand_deeply_nested(self):
+        schemas = {
+            'foo': {DeeplyNestedSchema: SchemaInfo()},
+        }
+        enums = dict()
+
+        tl = TestLanguage(
+            schemas,
+            enums,
+            False,
+        )
+
+        tl._expand_nested()
+
+        self.assertTrue(
+            DeeplyNestedSchema in tl.schemas['foo']
+        )
+        self.assertTrue(
+            NestingSchema in tl.schemas['foo']
+        )
+        self.assertTrue(
+            NestedSchema in tl.schemas['foo']
+        )
+        self.assertEqual(len(tl.schemas['foo']), 3)
+        self.assertEqual(len(tl.enums['foo']), 0)
+
+        tl._add_dependencies_for_schemas()
+        tl._add_ordering_to_schemas()
+
+        self.assertEqual(
+            tl.schemas['foo'][DeeplyNestedSchema].ordering,
+            2
+        )
+        self.assertEqual(
+            tl.schemas['foo'][NestingSchema].ordering,
+            1
+        )
+        self.assertEqual(
+            tl.schemas['foo'][NestedSchema].ordering,
+            0
+        )
+        self.assertTrue(
+            NestingSchema in tl.schemas['foo'][DeeplyNestedSchema].nests
+        )
+        self.assertTrue(
+            NestedSchema in tl.schemas['foo'][DeeplyNestedSchema].nests
+        )
+        self.assertTrue(
+            DeeplyNestedSchema in tl.schemas['foo'][NestingSchema].nested_by
+        )
+        self.assertTrue(
+            DeeplyNestedSchema in tl.schemas['foo'][NestedSchema].nested_by
+        )
+        self.assertTrue(
+            NestingSchema in tl.schemas['foo'][NestedSchema].nested_by
+        )
+        self.assertTrue(
+            NestedSchema in tl.schemas['foo'][NestingSchema].nests
+        )
     
     def test_expand_list_nested(self):
         schemas = {
-            'foo': set([ListNestingSchema]),
+            'foo': {ListNestingSchema: SchemaInfo()},
         }
         enums = dict()
 
@@ -126,9 +210,35 @@ class AbstractLanguageTests(unittest.TestCase):
         self.assertEqual(len(tl.schemas['foo']), 2)
         self.assertEqual(len(tl.enums['foo']), 0)
     
+    def test_expand_list_deeply_nested(self):
+        schemas = {
+            'foo': {DeeplyNestedListSchema: SchemaInfo()},
+        }
+        enums = dict()
+
+        tl = TestLanguage(
+            schemas,
+            enums,
+            False,
+        )
+
+        tl._expand_nested()
+
+        self.assertTrue(
+            DeeplyNestedListSchema in tl.schemas['foo']
+        )
+        self.assertTrue(
+            ListNestingSchema in tl.schemas['foo']
+        )
+        self.assertTrue(
+            NestedSchema in tl.schemas['foo']
+        )
+        self.assertEqual(len(tl.schemas['foo']), 3)
+        self.assertEqual(len(tl.enums['foo']), 0)
+    
     def test_expand_enum(self):
         schemas = {
-            'foo': set([EnumSchema]),
+            'foo': {EnumSchema: SchemaInfo()},
         }
         enums = dict()
 
@@ -151,7 +261,7 @@ class AbstractLanguageTests(unittest.TestCase):
 
     def test_expand_list_enum(self):
         schemas = {
-            'foo': set([ListEnumSchema]),
+            'foo': {ListEnumSchema: SchemaInfo()},
         }
         enums = dict()
 
