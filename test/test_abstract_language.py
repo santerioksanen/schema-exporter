@@ -48,9 +48,6 @@ class ListEnumSchema(Schema):
 
 class TestLanguage(AbstractLanguage):
 
-    def _mappings(self) -> Dict[fields.Field, Mapping]:
-        pass
-
     def _export_field(
         self,
         ma_field: fields.Field, 
@@ -67,6 +64,9 @@ class TestLanguage(AbstractLanguage):
         include_dump_only: bool,
         include_load_only: bool
     ) -> str:
+        pass
+    
+    def _export_header(self, namespace: str):
         pass
 
 

@@ -14,7 +14,7 @@ class Mapping:
             List[str],
             Dict[str, List[str]]
         ]
-    ]
+    ] = None
 
 
 @dataclass

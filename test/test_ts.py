@@ -1,7 +1,9 @@
 import unittest
 import marshmallow as ma
 
-from marshmallow_export.ts_utils import _get_ts_mapping
+#from marshmallow_export.ts_utils import _get_ts_mapping
+from marshmallow_export.languages import Typescript
+from marshmallow_export.types import SchemaInfo
 
 
 class NestedSchema(ma.Schema):
@@ -54,21 +56,31 @@ class TsTests(unittest.TestCase):
 
     def test_basic(self):
 
-        exp = _get_ts_mapping(
+        schemas = {
+            'default': {
+                NestedSchema: SchemaInfo(),
+                TestSchema: SchemaInfo(),
+            }
+        }
+        enums = dict()
+
+        exporter = Typescript(schemas, enums, True)
+
+        exp = exporter._export_schema(
             TestSchema,
             True,
             True,
             True,
         )
         self.assertEqual(exp, TEST_SCHEMA_TS)
-        exp = _get_ts_mapping(
+        exp = exporter._export_schema(
             TestSchema,
             True,
             False,
             True,
         )
         self.assertEqual(exp, TEST_SCHEMA_TS_NOT_DUMP_ONLY)
-        exp = _get_ts_mapping(
+        exp = exporter._export_schema(
             TestSchema,
             True,
             True,

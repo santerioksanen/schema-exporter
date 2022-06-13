@@ -25,8 +25,8 @@ class AbstractLanguage(metaclass = ABCMeta):
         if expand_nested:
             self._expand_nested()
         
-        self._add_dependencies_for_schemas()
-        self._add_ordering_to_schemas()
+        #self._add_dependencies_for_schemas()
+        #self._add_ordering_to_schemas()
 
     def _expand_schema(
         self,
@@ -186,24 +186,19 @@ class AbstractLanguage(metaclass = ABCMeta):
             name = name.replace('Schema', '')
         
         return name
-    
-    @staticmethod
-    @property
-    @abstractmethod
-    def _mappings() -> Dict[fields.Field, Mapping]:
-        pass
 
     @abstractmethod
     def _export_field(
         self,
+        field_name: str,
         ma_field: fields.Field,
         strip_schema_keyword: bool
     ) -> Tuple[str, str]:
         pass
     
-    @staticmethod
     @abstractmethod 
     def _export_schema(
+        self,
         schema: Schema,
         strip_schema_keyword: bool,
         include_dump_only: bool,
@@ -213,14 +208,37 @@ class AbstractLanguage(metaclass = ABCMeta):
 
     @staticmethod
     @abstractmethod
-    def _export_enum(enum: Enum):
+    def _export_enum(enum: Enum) -> str:
+        pass
+
+    @abstractmethod
+    def _export_header(self, namespace: str) -> str:
         pass
 
     def export_namespaces(
         self,
-        namespaces: List[str],
+        namespace: str,
         strip_schema_keyword: bool,
         include_dump_only: bool,
         include_load_only: bool
     ) -> str:
-        pass
+        
+        schemas = self.schemas[namespace]
+        enums = self.enums[namespace]
+
+        # Sort schemas first by name, second by ordering
+        schemas = list(schemas.items())
+        schemas.sort(key=lambda e: self._get_schema_export_name(e[0], strip_schema_keyword))
+        schemas.sort(key=lambda e: e[1].ordering)
+
+        header = self._export_header(namespace)
+        output = [header] if len(header) > 0 else list()
+        output += [self._export_enum(e) for e in enums]
+        output += [self._expand_schema(
+            schema=schema,
+            strip_schema_keyword=strip_schema_keyword,
+            include_dump_only=include_dump_only,
+            include_load_only=include_load_only
+        ) for schema in schemas]
+
+        return '\n'.join(output)
