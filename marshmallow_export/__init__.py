@@ -4,7 +4,7 @@ from enum import Enum
 from pathlib import Path
 
 from .types import EnumInfo, SchemaInfo
-from .languages import Typescript
+from .languages import Rust, Typescript
 from .languages.abstract import AbstractLanguage
 
 from typing import Dict, Type
@@ -25,6 +25,7 @@ def _register_language(language: Type[AbstractLanguage]):
 
 # Register languages
 _register_language(Typescript)
+_register_language(Rust)
 
 
 def export_schema(

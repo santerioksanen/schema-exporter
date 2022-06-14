@@ -85,7 +85,11 @@ class Rust(AbstractLanguage):
         enum_fields = '\n'.join(enum_fields)
         derives = ''
         if 'rust_enum_derives' in enum_info.kwargs and len(enum_info.kwargs['rust_enum_derives']) > 0:
-            derives = f'#[derive({", ".join([m.mapping for m in enum_info.kwargs["rust_enum_derives"]])})]\n'
+            derive_str = sorted(
+                [m.mapping for m in enum_info.kwargs["rust_enum_derives"]],
+                key=lambda e: e.lower()
+            )
+            derives = f'#[derive({", ".join([m for m in derive_str])})]\n'
 
         return f'{derives}pub enum {e.__name__} {{\n{enum_fields}\n}}\n'
 
@@ -96,6 +100,16 @@ class Rust(AbstractLanguage):
             include_load_only: bool
     ) -> str:
         imports = dict()
+        for enum_info in self.enums[namespace].values():
+            if 'rust_enum_derives' in enum_info.kwargs:
+                for rust_derive in enum_info.kwargs['rust_enum_derives']:
+                    if isinstance(rust_derive.imports, dict):
+                        for lib, imp in rust_derive.imports.items():
+                            if not lib in imports:
+                                imports[lib] = set()
+                            
+                            imports[lib].update(imp)
+
         for schema, schema_info in self.schemas[namespace].items():
             if 'rust_schema_derives' in schema_info.kwargs:
                 for rust_derive in schema_info.kwargs['rust_schema_derives']:
@@ -130,10 +144,22 @@ class Rust(AbstractLanguage):
                     imports[lib].update(imp)
         
         imports = sorted(list(imports.items()), key=lambda e: e[0].lower())
-        return '\n'.join([
-            f'use {lib}::{"{" if len(imp) > 1 else ""}{", ".join(imp)}{"}" if len(imp) > 1 else ""};'
-            for lib, imp in imports 
-        ]) + '\n'
+        formatted = list()
+        for lib, imp in imports:
+            imp = sorted(imp, key=lambda e: e.lower())
+            formatted_imp = ''
+            if len(imp) > 1:
+                formatted_imp = '{'
+            
+            formatted_imp += ', '.join(imp)
+            if len(imp) > 1:
+                formatted_imp += '}'
+
+            formatted.append(
+                f'use {lib}::{formatted_imp};'
+            )
+
+        return '\n'.join(formatted) + '\n'
 
     def _format_schema_field(
             self,
@@ -161,7 +187,11 @@ class Rust(AbstractLanguage):
         derives = ''
 
         if 'rust_schema_derives' in schema_info.kwargs and len(schema_info.kwargs['rust_schema_derives']) > 0:
-            derives = f'#[derive({", ".join([m.mapping for m in schema_info.kwargs["rust_schema_derives"]])})]\n'
+            derive_str = sorted(
+                [m.mapping for m in schema_info.kwargs["rust_schema_derives"]],
+                key=lambda e: e.lower()
+            )
+            derives = f'#[derive({", ".join([m for m in derive_str])})]\n'
 
         return f'{derives}pub struct {schema_name} {{\n{schema_fields}\n}}\n'
 

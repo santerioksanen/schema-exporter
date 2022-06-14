@@ -30,7 +30,7 @@ test_schema_info = SchemaInfo(kwargs={
 })
 
 
-TEST_ENUM_RUST = '''#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+TEST_ENUM_RUST = '''#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
 pub enum TestEnum {
     A,
     B,
@@ -56,7 +56,7 @@ class TestSchema(ma.Schema):
     uuid_field = ma.fields.UUID()
 
 
-TEST_SCHEMA_RUST = '''#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+TEST_SCHEMA_RUST = '''#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
 pub struct Test {
     pub load_only: Option<i64>,
     pub dump_only: Option<i64>,
@@ -71,7 +71,7 @@ pub struct Test {
 }
 '''
 
-TEST_SCHEMA_RUST_NOT_LOAD_ONLY = '''#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+TEST_SCHEMA_RUST_NOT_LOAD_ONLY = '''#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
 pub struct Test {
     pub dump_only: Option<i64>,
     pub required: i64,
@@ -85,7 +85,7 @@ pub struct Test {
 }
 '''
 
-TEST_SCHEMA_RUST_NOT_DUMP_ONLY = '''#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+TEST_SCHEMA_RUST_NOT_DUMP_ONLY = '''#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
 pub struct Test {
     pub load_only: Option<i64>,
     pub required: i64,
@@ -100,7 +100,7 @@ pub struct Test {
 '''
 
 TEST_HEADER = '''use chrono::{DateTime, Utc};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 '''
 

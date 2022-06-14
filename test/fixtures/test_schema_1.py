@@ -45,3 +45,8 @@ export_mappings(
     p,
     'typescript'
 )
+p = Path().cwd() / 'test_schema_1.rs.export'
+export_mappings(
+    p,
+    'rust'
+)
