@@ -5,8 +5,8 @@ from marshmallow_enum import EnumField
 
 from enum import Enum, auto
 
-from marshmallow_export.languages import Typescript
-from marshmallow_export.types import SchemaInfo, EnumInfo
+from marshmallow_export.languages import Rust
+from marshmallow_export.types import EnumInfo, Mapping
 
 
 class TestEnum(Enum):
@@ -15,24 +15,22 @@ class TestEnum(Enum):
     C = 'C'
 
 
-TEST_ENUM_TS = '''export enum TestEnum {
-  A = "a",
-  B = 2,
-  C = "C",
-}
-'''
+test_enum_info = EnumInfo(kwargs={
+    'rust_enum_derives': [
+        Mapping(mapping='Clone'),
+        Mapping(mapping='Copy'),
+        Mapping(mapping='Debug'),
+        Mapping(mapping='Serialize', imports={'serde': ['Serialize']}),
+        Mapping(mapping='Deserialize', imports={'serde': ['Deserialize']}),
+    ]
+})
 
 
-class TestEnumAuto(Enum):
-    A = auto()
-    B = auto()
-    C = auto()
-
-
-TEST_ENUM_AUTO_TS = '''export enum TestEnumAuto {
-  A = 1,
-  B = 2,
-  C = 3,
+TEST_ENUM_RUST = '''#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+pub enum TestEnum {
+    A,
+    B,
+    C,
 }
 '''
 
@@ -87,47 +85,44 @@ TEST_SCHEMA_TS_NOT_DUMP_ONLY = '''export interface Test {
 '''
 
 
-class TsTests(unittest.TestCase):
+class RustTests(unittest.TestCase):
 
-    def test_basic(self):
-
-        schemas = {
-            'default': {
-                NestedSchema: SchemaInfo(),
-                TestSchema: SchemaInfo(),
-            }
-        }
-        enums = dict()
-
-        exporter = Typescript(schemas, enums, True)
-
-        exp = exporter._export_schema(
-            TestSchema,
-            True,
-            True,
-        )
-        self.assertEqual(exp, TEST_SCHEMA_TS)
-        exp = exporter._export_schema(
-            TestSchema,
-            False,
-            True,
-        )
-        self.assertEqual(exp, TEST_SCHEMA_TS_NOT_DUMP_ONLY)
-        exp = exporter._export_schema(
-            TestSchema,
-            True,
-            False,
-        )
-        self.assertEqual(exp, TEST_SCHEMA_TS_NOT_LOAD_ONLY)
+#    def test_basic(self):
+#
+#        schemas = {
+#            'default': {
+#                NestedSchema: SchemaInfo(),
+#                TestSchema: SchemaInfo(),
+#            }
+#        }
+#        enums = dict()
+#
+#        exporter = Typescript(schemas, enums, True)
+#
+#        exp = exporter._export_schema(
+#            TestSchema,
+#            True,
+#            True,
+#        )
+#        self.assertEqual(exp, TEST_SCHEMA_TS)
+#        exp = exporter._export_schema(
+#            TestSchema,
+#            False,
+#            True,
+#        )
+#        self.assertEqual(exp, TEST_SCHEMA_TS_NOT_DUMP_ONLY)
+#        exp = exporter._export_schema(
+#            TestSchema,
+#            True,
+#            False,
+#        )
+#        self.assertEqual(exp, TEST_SCHEMA_TS_NOT_LOAD_ONLY)
 
     def test_enum(self):
         schemas = dict()
         enums = dict()
 
-        ts = Typescript(schemas, enums, True)
+        ts = Rust(schemas, enums, True)
 
-        exp = ts.format_enum(TestEnum, EnumInfo)
-        self.assertEqual(exp, TEST_ENUM_TS)
-
-        exp = ts.format_enum(TestEnumAuto, EnumInfo)
-        self.assertEqual(exp, TEST_ENUM_AUTO_TS)
+        exp = ts.format_enum(TestEnum, test_enum_info)
+        self.assertEqual(exp, TEST_ENUM_RUST)

@@ -3,24 +3,26 @@ from enum import Enum
 
 from pathlib import Path
 
-from .types import SchemaInfo
+from .types import EnumInfo, SchemaInfo
 from .languages import Typescript
 from .languages.abstract import AbstractLanguage
 from .type_mappings import Languages
 from .type_mappings import type_mappings
 
-from .ts_utils import _get_ts_mapping
-
-from typing import List, Dict, Type
+from typing import Dict, Type
 
 
 __schemas = dict()
 __enums = dict()
 __languages: Dict[str, Type[AbstractLanguage]] = dict()
+__kwargs_defaults = dict()
 
 
 def _register_language(language: Type[AbstractLanguage]):
     __languages[language.__name__.lower()] = language
+    lng_kwargs = language.get_default_kwargs()
+    for key, value in lng_kwargs.items():
+        __kwargs_defaults[key] = value
 
 
 # Register languages
@@ -31,6 +33,17 @@ def export_schema(
         namespace: str = 'default',
         **kwargs
 ):
+    for kwarg in kwargs:
+        if kwarg not in __kwargs_defaults:
+            raise ValueError(f'Provided unknown keyword argument: {kwarg}')
+
+    parsed_args = dict()
+    for key, value in __kwargs_defaults.items():
+        parsed_args[key] = value
+
+    for key, value in kwargs:
+        parsed_args[key] = value
+
     if not isinstance(namespace, str):
         raise ValueError('Namespace should be a string containing one or more comma separated values')
 
@@ -42,13 +55,13 @@ def export_schema(
                 if n not in __schemas:
                     __schemas[n] = dict()
 
-                __schemas[n][cls] = SchemaInfo()
+                __schemas[n][cls] = SchemaInfo(kwargs=parsed_args)
         elif issubclass(cls, Enum):
             for n in namespace:
                 if n not in __enums:
-                    __enums[n] = set()
+                    __enums[n] = dict()
 
-                __enums[n].add(cls)
+                __enums[n][cls] = EnumInfo(kwargs=parsed_args)
 
     return decorate
 

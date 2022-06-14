@@ -1,13 +1,12 @@
-from abc import ABCMeta, abstractmethod, abstractproperty
+from abc import ABCMeta, abstractmethod
 
 from marshmallow import Schema, fields
-
 from marshmallow_enum import EnumField
-from enum import Enum
+from enum import Enum, EnumMeta
 
-from typing import Tuple, Dict, List, Set
+from typing import Tuple, Dict, List, Set, Any
 
-from marshmallow_export.types import SchemaInfo
+from marshmallow_export.types import SchemaInfo, EnumInfo
 
 
 class AbstractLanguage(metaclass=ABCMeta):
@@ -15,7 +14,7 @@ class AbstractLanguage(metaclass=ABCMeta):
     def __init__(
             self,
             schemas: Dict[str, Dict[Schema, SchemaInfo]],
-            enums: Dict[str, Set[Enum]],
+            enums: Dict[str, Dict[Enum, EnumInfo]],
             strip_schema_keyword: bool = True,
             expand_nested: bool = True,
             ordered_output: bool = True,
@@ -24,6 +23,7 @@ class AbstractLanguage(metaclass=ABCMeta):
         self.schemas = schemas
         self.enums = enums
         self.strip_schema_keyword = strip_schema_keyword
+        self.imports = dict()
 
         if expand_nested:
             self._expand_nested()
@@ -32,8 +32,14 @@ class AbstractLanguage(metaclass=ABCMeta):
             self._add_dependencies_for_schemas()
             self._add_ordering_to_schemas()
 
+    @staticmethod
+    @abstractmethod
+    def get_default_kwargs() -> Dict[str, Any]:
+        pass
+
     def _expand_schema(
             self,
+            namespace: str,
             schema: Schema
     ) -> Tuple[Set[Schema], Set[Enum]]:
         """ If given schema has nested schemas or enums, returns a set 
@@ -46,21 +52,25 @@ class AbstractLanguage(metaclass=ABCMeta):
         for field in schema._declared_fields.values():
             recurse_field = None
             if isinstance(field, fields.Nested):
-                schemas_to_add.add(field.nested)
-                recurse_field = field.nested
+                if field.nested not in self.schemas[namespace]:
+                    schemas_to_add.add(field.nested)
+                    recurse_field = field.nested
 
             elif isinstance(field, fields.List):
                 if isinstance(field.inner, fields.Nested):
-                    schemas_to_add.add(field.inner.nested)
-                    recurse_field = field.inner.nested
+                    if field.inner.nested not in self.schemas[namespace]:
+                        schemas_to_add.add(field.inner.nested)
+                        recurse_field = field.inner.nested
                 elif isinstance(field.inner, EnumField):
-                    enums_to_add.add(field.inner.enum)
+                    if namespace not in self.enums or field.inner not in self.enums[namespace]:
+                        enums_to_add.add(field.inner.enum)
 
             elif isinstance(field, EnumField):
-                enums_to_add.add(field.enum)
+                if namespace not in self.enums or field not in self.enums[namespace]:
+                    enums_to_add.add(field.enum)
 
             if recurse_field is not None:
-                tmp = self._expand_schema(recurse_field)
+                tmp = self._expand_schema(namespace, recurse_field)
                 schemas_to_add.update(tmp[0])
                 enums_to_add.update(tmp[1])
 
@@ -72,16 +82,17 @@ class AbstractLanguage(metaclass=ABCMeta):
         """
         for namespace, schema_list in self.schemas.items():
             for schema in schema_list.keys():
-                schemas_to_add, enums_to_add = self._expand_schema(schema)
+                schemas_to_add, enums_to_add = self._expand_schema(namespace, schema)
 
             for schema in schemas_to_add:
                 if schema not in self.schemas[namespace]:
                     self.schemas[namespace][schema] = SchemaInfo()
 
-            if not namespace in self.enums:
-                self.enums[namespace] = set()
+            if namespace not in self.enums:
+                self.enums[namespace] = dict()
 
-            self.enums[namespace].update(enums_to_add)
+            for en in enums_to_add:
+                self.enums[namespace][en] = EnumInfo()
 
     def _add_dependencies_for_schema(
             self,
@@ -190,6 +201,16 @@ class AbstractLanguage(metaclass=ABCMeta):
 
         return name
 
+    @staticmethod
+    @abstractmethod
+    def _format_enum_field(field_name: str, value: Enum) -> str:
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def _format_enum(e: EnumMeta, enum_fields: List[str], enum_info: EnumInfo) -> str:
+        pass
+
     @abstractmethod
     def _export_field(
             self,
@@ -207,10 +228,13 @@ class AbstractLanguage(metaclass=ABCMeta):
     ) -> str:
         pass
 
-    @staticmethod
-    @abstractmethod
-    def _export_enum(e: Enum) -> str:
-        pass
+    def format_enum(self, e: EnumMeta, enum_info: EnumInfo) -> str:
+        enum_fields = [self._format_enum_field(
+            field_name,
+            value
+        ) for field_name, value in e._member_map_.items()]
+
+        return self._format_enum(e, enum_fields, enum_info)
 
     @abstractmethod
     def _export_header(self, namespace: str) -> str:
@@ -224,7 +248,7 @@ class AbstractLanguage(metaclass=ABCMeta):
     ) -> str:
 
         schemas = self.schemas[namespace]
-        enums: List[Enum] = sorted(list(self.enums[namespace]), key=lambda e: e.__name__)
+        enums: List[Enum] = sorted(list(self.enums[namespace].items()), key=lambda e: e[0].__name__)
 
         # Sort schemas first by name, second by ordering
         schemas = list(schemas.items())
@@ -233,7 +257,7 @@ class AbstractLanguage(metaclass=ABCMeta):
 
         header = self._export_header(namespace)
         output = [header] if len(header) > 0 else list()
-        output += [self._export_enum(e) for e in enums]
+        output += [self.format_enum(e, enum_info) for e, enum_info in enums]
         output += [self._export_schema(
             schema=schema[0],
             include_dump_only=include_dump_only,

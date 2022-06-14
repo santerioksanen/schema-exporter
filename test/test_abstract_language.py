@@ -1,13 +1,13 @@
-from enum import Enum
+from enum import Enum, EnumMeta
 import unittest
 from marshmallow import Schema, fields
 
 from marshmallow_enum import EnumField
 
 from marshmallow_export.languages.abstract import AbstractLanguage
-from marshmallow_export.types import SchemaInfo
+from marshmallow_export.types import EnumInfo, SchemaInfo
 
-from typing import Tuple
+from typing import Tuple, List, Dict, Any
 
 
 class FooSchema(Schema):
@@ -48,14 +48,15 @@ class ListEnumSchema(Schema):
 
 class TestLanguage(AbstractLanguage):
 
+    @staticmethod
+    def get_default_kwargs() -> Dict[str, Any]:
+        pass
+
     def _export_field(
             self,
             field_name: str,
             ma_field: fields.Field,
     ) -> Tuple[str, str]:
-        pass
-
-    def _export_enum(enum: Enum):
         pass
 
     def _export_schema(
@@ -64,6 +65,14 @@ class TestLanguage(AbstractLanguage):
             include_dump_only: bool,
             include_load_only: bool
     ) -> str:
+        pass
+
+    @staticmethod
+    def _format_enum_field(field_name: str, value: Enum) -> str:
+        pass
+
+    @staticmethod
+    def _format_enum(e: EnumMeta, enum_fields: List[str], enum_info: EnumInfo) -> str:
         pass
     
     def _export_header(self, namespace: str):
