@@ -6,8 +6,6 @@ from pathlib import Path
 from .types import EnumInfo, SchemaInfo
 from .languages import Typescript
 from .languages.abstract import AbstractLanguage
-from .type_mappings import Languages
-from .type_mappings import type_mappings
 
 from typing import Dict, Type
 
