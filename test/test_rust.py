@@ -52,6 +52,8 @@ class TestSchema(ma.Schema):
     nested = ma.fields.Nested(NestedSchema)
     nested_many = ma.fields.Nested(NestedSchema, many=True)
     enum_field = EnumField(TestEnum)
+    datetime_field = ma.fields.DateTime()
+    uuid_field = ma.fields.UUID()
 
 
 TEST_SCHEMA_RUST = '''#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
@@ -64,6 +66,8 @@ pub struct Test {
     pub nested: Option<Nested>,
     pub nested_many: Option<Vec<Nested>>,
     pub enum_field: Option<TestEnum>,
+    pub datetime_field: Option<DateTime<Utc>>,
+    pub uuid_field: Option<Uuid>,
 }
 '''
 
@@ -76,6 +80,8 @@ pub struct Test {
     pub nested: Option<Nested>,
     pub nested_many: Option<Vec<Nested>>,
     pub enum_field: Option<TestEnum>,
+    pub datetime_field: Option<DateTime<Utc>>,
+    pub uuid_field: Option<Uuid>,
 }
 '''
 
@@ -88,7 +94,14 @@ pub struct Test {
     pub nested: Option<Nested>,
     pub nested_many: Option<Vec<Nested>>,
     pub enum_field: Option<TestEnum>,
+    pub datetime_field: Option<DateTime<Utc>>,
+    pub uuid_field: Option<Uuid>,
 }
+'''
+
+TEST_HEADER = '''use chrono::{DateTime, Utc};
+use serde::{Serialize, Deserialize};
+use uuid::Uuid;
 '''
 
 
@@ -98,13 +111,20 @@ class RustTests(unittest.TestCase):
 
         schemas = {
             'default': {
-                NestedSchema: SchemaInfo(),
-                TestSchema: SchemaInfo(),
+                NestedSchema: test_schema_info,
+                TestSchema: test_schema_info,
             }
         }
         enums = dict()
 
         exporter = Rust(schemas, enums, dict(), True)
+
+        exp = exporter.format_header(
+            'default',
+            True,
+            True
+        )
+        self.assertEqual(exp, TEST_HEADER)
 
         exp = exporter.format_schema(
             TestSchema,

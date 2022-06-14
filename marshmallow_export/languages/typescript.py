@@ -46,7 +46,7 @@ type_mappings = {
 class Typescript(AbstractLanguage):
 
     @property
-    def type_mappings(self) -> Dict[fields.Field, Enum]:
+    def type_mappings(self) -> Dict[fields.Field, Mapping]:
         return type_mappings
 
     @staticmethod
@@ -66,7 +66,12 @@ class Typescript(AbstractLanguage):
         enum_fields = '\n'.join(enum_fields)
         return f'export enum {e.__name__} {{\n{enum_fields}\n}}\n'
 
-    def format_header(self, namespace: str) -> str:
+    def format_header(
+            self,
+            namespace: str,
+            include_dump_only: bool,
+            include_load_only: bool
+    ) -> str:
         return ''
     
     def _format_schema_field(

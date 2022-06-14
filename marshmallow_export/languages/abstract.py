@@ -25,7 +25,6 @@ class AbstractLanguage(metaclass=ABCMeta):
         self.enums = enums
         self.strip_schema_keyword = strip_schema_keyword
         self.default_info_kwargs = default_info_kwargs
-        self.imports = dict()
 
         if expand_nested:
             self._expand_nested()
@@ -36,7 +35,7 @@ class AbstractLanguage(metaclass=ABCMeta):
 
     @property
     @abstractmethod
-    def type_mappings(self) -> Dict[fields.Field, Enum]:
+    def type_mappings(self) -> Dict[fields.Field, Mapping]:
         pass
 
     @staticmethod
@@ -294,7 +293,12 @@ class AbstractLanguage(metaclass=ABCMeta):
         return self._format_schema(schema, schema_info, schema_fields)
 
     @abstractmethod
-    def format_header(self, namespace: str) -> str:
+    def format_header(
+            self,
+            namespace: str,
+            include_dump_only: bool,
+            include_load_only: bool
+    ) -> str:
         pass
 
     def export_namespace(
@@ -305,14 +309,18 @@ class AbstractLanguage(metaclass=ABCMeta):
     ) -> str:
 
         schemas = self.schemas[namespace]
-        enums: List[Enum] = sorted(list(self.enums[namespace].items()), key=lambda e: e[0].__name__)
+        enums: List[Enum] = sorted(list(self.enums[namespace].items()), key=lambda e: e[0].__name__.lower())
 
         # Sort schemas first by name, second by ordering
         schemas = list(schemas.items())
-        schemas.sort(key=lambda e: self.get_schema_export_name(e[0]))
+        schemas.sort(key=lambda e: self.get_schema_export_name(e[0]).lower())
         schemas.sort(key=lambda e: e[1].ordering)
 
-        header = self.format_header(namespace)
+        header = self.format_header(
+            namespace=namespace,
+            include_dump_only=include_dump_only,
+            include_load_only=include_load_only
+        )
         output = [header] if len(header) > 0 else list()
         output += [self.format_enum(e, enum_info) for e, enum_info in enums]
         output += [self.format_schema(
