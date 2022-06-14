@@ -49,9 +49,9 @@ class ListEnumSchema(Schema):
 class TestLanguage(AbstractLanguage):
 
     def _export_field(
-        self,
-        ma_field: fields.Field, 
-        strip_schema_keyword: bool
+            self,
+            field_name: str,
+            ma_field: fields.Field,
     ) -> Tuple[str, str]:
         pass
 
@@ -59,10 +59,10 @@ class TestLanguage(AbstractLanguage):
         pass
 
     def _export_schema(
-        schema: Schema,
-        strip_schema_keyword: bool,
-        include_dump_only: bool,
-        include_load_only: bool
+            self,
+            schema: Schema,
+            include_dump_only: bool,
+            include_load_only: bool
     ) -> str:
         pass
     
@@ -72,17 +72,29 @@ class TestLanguage(AbstractLanguage):
 
 class AbstractLanguageTests(unittest.TestCase):
 
-    def test_get_schma_name_no_strip_schema(self):
+    def test_get_schema_name_no_strip_schema(self):
+
+        tl = TestLanguage(
+            schemas=dict(),
+            enums=dict(),
+            strip_schema_keyword=False
+        )
 
         self.assertEqual(
-            AbstractLanguage._get_schema_export_name(FooSchema, False),
+            tl.get_schema_export_name(FooSchema),
             'FooSchema'
         )
 
     def test_get_schema_name_strip_schema(self):
 
+        tl = TestLanguage(
+            schemas=dict(),
+            enums=dict(),
+            strip_schema_keyword=True
+        )
+
         self.assertEqual(
-            AbstractLanguage._get_schema_export_name(FooSchema, True),
+            tl.get_schema_export_name(FooSchema),
             'Foo'
         )
     

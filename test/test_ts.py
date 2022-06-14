@@ -1,9 +1,40 @@
 import unittest
 import marshmallow as ma
 
-#from marshmallow_export.ts_utils import _get_ts_mapping
+from marshmallow_enum import EnumField
+
+from enum import Enum, auto
+
 from marshmallow_export.languages import Typescript
 from marshmallow_export.types import SchemaInfo
+
+
+class TestEnum(Enum):
+    A = 'a'
+    B = 2
+    C = 'C'
+
+
+TEST_ENUM_TS = '''export enum TestEnum {
+  A = "a";
+  B = 2;
+  C = "C";
+};
+'''
+
+
+class TestEnumAuto(Enum):
+    A = auto()
+    B = auto()
+    C = auto()
+
+
+TEST_ENUM_AUTO_TS = '''export enum TestEnumAuto {
+  A = 1;
+  B = 2;
+  C = 3;
+};
+'''
 
 
 class NestedSchema(ma.Schema):
@@ -18,6 +49,7 @@ class TestSchema(ma.Schema):
     required_allow_none = ma.fields.Integer(required=True, allow_none=True)
     nested = ma.fields.Nested(NestedSchema)
     nested_many = ma.fields.Nested(NestedSchema, many=True)
+    enum_field = EnumField(TestEnum)
 
 
 TEST_SCHEMA_TS = '''export interface Test {
@@ -28,6 +60,7 @@ TEST_SCHEMA_TS = '''export interface Test {
   required_allow_none: number | null;
   nested?: Nested;
   nested_many?: Nested[];
+  enum_field?: TestEnum;
 };
 '''
 
@@ -38,6 +71,7 @@ TEST_SCHEMA_TS_NOT_LOAD_ONLY = '''export interface Test {
   required_allow_none: number | null;
   nested?: Nested;
   nested_many?: Nested[];
+  enum_field?: TestEnum;
 };
 '''
 
@@ -48,8 +82,11 @@ TEST_SCHEMA_TS_NOT_DUMP_ONLY = '''export interface Test {
   required_allow_none: number | null;
   nested?: Nested;
   nested_many?: Nested[];
+  enum_field?: TestEnum;
 };
 '''
+
+
 
 
 class TsTests(unittest.TestCase):
@@ -70,12 +107,10 @@ class TsTests(unittest.TestCase):
             TestSchema,
             True,
             True,
-            True,
         )
         self.assertEqual(exp, TEST_SCHEMA_TS)
         exp = exporter._export_schema(
             TestSchema,
-            True,
             False,
             True,
         )
@@ -83,7 +118,18 @@ class TsTests(unittest.TestCase):
         exp = exporter._export_schema(
             TestSchema,
             True,
-            True,
             False,
         )
         self.assertEqual(exp, TEST_SCHEMA_TS_NOT_LOAD_ONLY)
+
+    def test_enum(self):
+        schemas = dict()
+        enums = dict()
+
+        ts = Typescript(schemas, enums, True)
+
+        exp = ts._export_enum(TestEnum)
+        self.assertEqual(exp, TEST_ENUM_TS)
+
+        exp = ts._export_enum(TestEnumAuto)
+        self.assertEqual(exp, TEST_ENUM_AUTO_TS)
