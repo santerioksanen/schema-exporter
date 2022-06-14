@@ -3,10 +3,10 @@ import marshmallow as ma
 
 from marshmallow_enum import EnumField
 
-from enum import Enum, auto
+from enum import Enum
 
 from marshmallow_export.languages import Rust
-from marshmallow_export.types import EnumInfo, Mapping
+from marshmallow_export.types import EnumInfo, SchemaInfo, Mapping
 
 
 class TestEnum(Enum):
@@ -15,14 +15,18 @@ class TestEnum(Enum):
     C = 'C'
 
 
+mappings = [
+    Mapping(mapping='Clone'),
+    Mapping(mapping='Copy'),
+    Mapping(mapping='Debug'),
+    Mapping(mapping='Serialize', imports={'serde': ['Serialize']}),
+    Mapping(mapping='Deserialize', imports={'serde': ['Deserialize']}),
+]
 test_enum_info = EnumInfo(kwargs={
-    'rust_enum_derives': [
-        Mapping(mapping='Clone'),
-        Mapping(mapping='Copy'),
-        Mapping(mapping='Debug'),
-        Mapping(mapping='Serialize', imports={'serde': ['Serialize']}),
-        Mapping(mapping='Deserialize', imports={'serde': ['Deserialize']}),
-    ]
+    'rust_enum_derives': mappings,
+})
+test_schema_info = SchemaInfo(kwargs={
+    'rust_schema_derives': mappings,
 })
 
 
@@ -50,73 +54,79 @@ class TestSchema(ma.Schema):
     enum_field = EnumField(TestEnum)
 
 
-TEST_SCHEMA_TS = '''export interface Test {
-  load_only?: number;
-  dump_only?: number;
-  required: number;
-  allow_none?: number | null;
-  required_allow_none: number | null;
-  nested?: Nested;
-  nested_many?: Nested[];
-  enum_field?: TestEnum;
+TEST_SCHEMA_RUST = '''#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+pub struct Test {
+    pub load_only: Option<i64>,
+    pub dump_only: Option<i64>,
+    pub required: i64,
+    pub allow_none: Option<i64>,
+    pub required_allow_none: Option<i64>,
+    pub nested: Option<Nested>,
+    pub nested_many: Option<Vec<Nested>>,
+    pub enum_field: Option<TestEnum>,
 }
 '''
 
-TEST_SCHEMA_TS_NOT_LOAD_ONLY = '''export interface Test {
-  dump_only?: number;
-  required: number;
-  allow_none?: number | null;
-  required_allow_none: number | null;
-  nested?: Nested;
-  nested_many?: Nested[];
-  enum_field?: TestEnum;
+TEST_SCHEMA_RUST_NOT_LOAD_ONLY = '''#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+pub struct Test {
+    pub dump_only: Option<i64>,
+    pub required: i64,
+    pub allow_none: Option<i64>,
+    pub required_allow_none: Option<i64>,
+    pub nested: Option<Nested>,
+    pub nested_many: Option<Vec<Nested>>,
+    pub enum_field: Option<TestEnum>,
 }
 '''
 
-TEST_SCHEMA_TS_NOT_DUMP_ONLY = '''export interface Test {
-  load_only?: number;
-  required: number;
-  allow_none?: number | null;
-  required_allow_none: number | null;
-  nested?: Nested;
-  nested_many?: Nested[];
-  enum_field?: TestEnum;
+TEST_SCHEMA_RUST_NOT_DUMP_ONLY = '''#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+pub struct Test {
+    pub load_only: Option<i64>,
+    pub required: i64,
+    pub allow_none: Option<i64>,
+    pub required_allow_none: Option<i64>,
+    pub nested: Option<Nested>,
+    pub nested_many: Option<Vec<Nested>>,
+    pub enum_field: Option<TestEnum>,
 }
 '''
 
 
 class RustTests(unittest.TestCase):
 
-#    def test_basic(self):
-#
-#        schemas = {
-#            'default': {
-#                NestedSchema: SchemaInfo(),
-#                TestSchema: SchemaInfo(),
-#            }
-#        }
-#        enums = dict()
-#
-#        exporter = Typescript(schemas, enums, True)
-#
-#        exp = exporter._export_schema(
-#            TestSchema,
-#            True,
-#            True,
-#        )
-#        self.assertEqual(exp, TEST_SCHEMA_TS)
-#        exp = exporter._export_schema(
-#            TestSchema,
-#            False,
-#            True,
-#        )
-#        self.assertEqual(exp, TEST_SCHEMA_TS_NOT_DUMP_ONLY)
-#        exp = exporter._export_schema(
-#            TestSchema,
-#            True,
-#            False,
-#        )
-#        self.assertEqual(exp, TEST_SCHEMA_TS_NOT_LOAD_ONLY)
+    def test_basic(self):
+
+        schemas = {
+            'default': {
+                NestedSchema: SchemaInfo(),
+                TestSchema: SchemaInfo(),
+            }
+        }
+        enums = dict()
+
+        exporter = Rust(schemas, enums, dict(), True)
+
+        exp = exporter.format_schema(
+            TestSchema,
+            test_schema_info,
+            True,
+            True,
+        )
+        self.assertEqual(exp, TEST_SCHEMA_RUST)
+        exp = exporter.format_schema(
+            TestSchema,
+            test_schema_info,
+            False,
+            True,
+        )
+        self.assertEqual(exp, TEST_SCHEMA_RUST_NOT_DUMP_ONLY)
+        exp = exporter.format_schema(
+            TestSchema,
+            test_schema_info,
+            True,
+            False,
+        )
+        self.assertEqual(exp, TEST_SCHEMA_RUST_NOT_LOAD_ONLY)
 
     def test_enum(self):
         schemas = dict()

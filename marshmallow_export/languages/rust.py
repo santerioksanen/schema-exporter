@@ -84,7 +84,7 @@ class Rust(AbstractLanguage):
     def _format_enum(e: EnumMeta, enum_fields: List[str], enum_info: EnumInfo) -> str:
         enum_fields = '\n'.join(enum_fields)
         derives = ''
-        if 'rust_enum_derives' in enum_info.kwargs:
+        if 'rust_enum_derives' in enum_info.kwargs and len(enum_info.kwargs['rust_enum_derives']) > 0:
             derives = f'#[derive({", ".join([m.mapping for m in enum_info.kwargs["rust_enum_derives"]])})]\n'
 
         return f'{derives}pub enum {e.__name__} {{\n{enum_fields}\n}}\n'
@@ -100,15 +100,12 @@ class Rust(AbstractLanguage):
         export_type, many = self.map_schema_field(ma_field)
 
         if many:
-            export_type += '[]'
+            export_type = f'Vec<{export_type}>'
         
-        if ma_field.allow_none:
-            export_type += ' | null'
+        if ma_field.allow_none or not ma_field.required:
+            export_type = f'Option<{export_type}>'
         
-        if not ma_field.required:
-            field_name += '?'
-        
-        return f'  {field_name}: {export_type};'
+        return f'    pub {field_name}: {export_type},'
 
     def _format_schema(
             self,
@@ -118,5 +115,10 @@ class Rust(AbstractLanguage):
     ) -> str:
         schema_name = self.get_schema_export_name(schema)
         schema_fields = '\n'.join(schema_fields)
-        return f'export interface {schema_name} {{\n{schema_fields}\n}}\n'
+        derives = ''
+
+        if 'rust_schema_derives' in schema_info.kwargs and len(schema_info.kwargs['rust_schema_derives']) > 0:
+            derives = f'#[derive({", ".join([m.mapping for m in schema_info.kwargs["rust_schema_derives"]])})]\n'
+
+        return f'{derives}pub struct {schema_name} {{\n{schema_fields}\n}}\n'
 

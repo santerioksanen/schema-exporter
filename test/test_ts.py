@@ -99,7 +99,7 @@ class TsTests(unittest.TestCase):
         }
         enums = dict()
 
-        exporter = Typescript(schemas, enums, True)
+        exporter = Typescript(schemas, enums, dict(), True)
 
         exp = exporter.format_schema(
             TestSchema,

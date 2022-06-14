@@ -81,6 +81,7 @@ class AbstractLanguageTests(unittest.TestCase):
         tl = TestLanguage(
             schemas=dict(),
             enums=dict(),
+            default_info_kwargs=dict(),
             strip_schema_keyword=False
         )
 
@@ -94,6 +95,7 @@ class AbstractLanguageTests(unittest.TestCase):
         tl = TestLanguage(
             schemas=dict(),
             enums=dict(),
+            default_info_kwargs=dict(),
             strip_schema_keyword=True
         )
 
@@ -111,6 +113,7 @@ class AbstractLanguageTests(unittest.TestCase):
         tl = TestLanguage(
             schemas,
             enums,
+            dict(),
             False,
         )
 
@@ -152,6 +155,7 @@ class AbstractLanguageTests(unittest.TestCase):
         tl = TestLanguage(
             schemas,
             enums,
+            dict(),
             False,
         )
 
@@ -212,6 +216,7 @@ class AbstractLanguageTests(unittest.TestCase):
         tl = TestLanguage(
             schemas,
             enums,
+            dict(),
             False,
         )
 
@@ -235,6 +240,7 @@ class AbstractLanguageTests(unittest.TestCase):
         tl = TestLanguage(
             schemas,
             enums,
+            dict(),
             False,
         )
 
@@ -261,6 +267,7 @@ class AbstractLanguageTests(unittest.TestCase):
         tl = TestLanguage(
             schemas,
             enums,
+            dict(),
             False,
         )
 
@@ -284,6 +291,7 @@ class AbstractLanguageTests(unittest.TestCase):
         tl = TestLanguage(
             schemas,
             enums,
+            dict(),
             False,
         )
 

@@ -78,6 +78,7 @@ def _get_export(
     exporter = lng_class(
         schemas=__schemas,
         enums=__enums,
+        default_info_kwargs=__kwargs_defaults,
         strip_schema_keyword=strip_schema_keyword,
         expand_nested=expand_nested,
         ordered_output=ordered_output

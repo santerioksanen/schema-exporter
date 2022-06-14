@@ -15,6 +15,7 @@ class AbstractLanguage(metaclass=ABCMeta):
             self,
             schemas: Dict[str, Dict[Schema, SchemaInfo]],
             enums: Dict[str, Dict[Enum, EnumInfo]],
+            default_info_kwargs: Dict[str, Any],
             strip_schema_keyword: bool = True,
             expand_nested: bool = True,
             ordered_output: bool = True,
@@ -23,6 +24,7 @@ class AbstractLanguage(metaclass=ABCMeta):
         self.schemas = schemas
         self.enums = enums
         self.strip_schema_keyword = strip_schema_keyword
+        self.default_info_kwargs = default_info_kwargs
         self.imports = dict()
 
         if expand_nested:
@@ -91,13 +93,13 @@ class AbstractLanguage(metaclass=ABCMeta):
 
             for schema in schemas_to_add:
                 if schema not in self.schemas[namespace]:
-                    self.schemas[namespace][schema] = SchemaInfo()
+                    self.schemas[namespace][schema] = SchemaInfo(kwargs=self.default_info_kwargs)
 
             if namespace not in self.enums:
                 self.enums[namespace] = dict()
 
             for en in enums_to_add:
-                self.enums[namespace][en] = EnumInfo()
+                self.enums[namespace][en] = EnumInfo(kwargs=self.default_info_kwargs)
 
     def _add_dependencies_for_schema(
             self,
