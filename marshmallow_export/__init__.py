@@ -1,59 +1,82 @@
 from marshmallow import Schema
+from enum import Enum
 
 from pathlib import Path
 
+from .types import SchemaInfo
+from .languages import Typescript
+from .languages.abstract import AbstractLanguage
 from .type_mappings import Languages
 from .type_mappings import type_mappings
 
 from .ts_utils import _get_ts_mapping
 
-from typing import List
+from typing import List, Dict, Type
 
 
 __schemas = dict()
 __enums = dict()
+__languages: Dict[str, Type[AbstractLanguage]] = dict()
+
+
+def _register_language(language: Type[AbstractLanguage]):
+    __languages[language.__name__.lower()] = language
+
+
+# Register languages
+_register_language(Typescript)
 
 
 def export_schema(
-        namespace: str = 'default'
+        namespace: str = 'default',
+        **kwargs
 ):
-    if isinstance(namespace, str):
-        namespace = [namespace]
+    if not isinstance(namespace, str):
+        raise ValueError('Namespace should be a string containing one or more comma separated values')
 
-    if not isinstance(namespace, list):
-        raise ValueError('Namespace should be string or list of strings')
+    namespace = namespace.split(',')
 
     def decorate(cls):
         if issubclass(cls, Schema):
             for n in namespace:
                 if n not in __schemas:
-                    __schemas[n] = list()
+                    __schemas[n] = dict()
 
-                __schemas[n].append(cls)
+                __schemas[n][cls] = SchemaInfo()
+        elif issubclass(cls, Enum):
+            for n in namespace:
+                if n not in __enums:
+                    __enums[n] = set()
+
+                __enums[n].add(cls)
 
     return decorate
 
 
 def _get_export(
-        language: Languages,
-        namespaces: List[str],
+        language: str,
+        namespace: str,
         include_dump_only: bool,
         include_load_only: bool,
         strip_schema_keyword: bool,
-):
-    schemas = list()
-    for n in namespaces:
-        schemas += __schemas[n]
+        expand_nested: bool,
+        ordered_output: bool,
+) -> str:
 
-    if language == Languages.TS:
-        output = [_get_ts_mapping(
-            schema=schema,
-            strip_schema_keyword=strip_schema_keyword,
-            include_load_only=include_load_only,
-            include_dump_only=include_dump_only,
-        ) for schema in schemas]
+    lng_class = __languages[language]
+    exporter = lng_class(
+        schemas=__schemas,
+        enums=__enums,
+        strip_schema_keyword=strip_schema_keyword,
+        expand_nested=expand_nested,
+        ordered_output=ordered_output
+    )
 
-    return '\n'.join(output)
+    return exporter.export_namespace(
+        namespace=namespace,
+        include_dump_only=include_dump_only,
+        include_load_only=include_load_only
+    )
 
 
 def export_mappings(
@@ -63,31 +86,37 @@ def export_mappings(
         include_dump_only: bool = True,
         include_load_only: bool = True,
         strip_schema_keyword: bool = True,
+        expand_nested: bool = True,
+        ordered_output: bool = True,
 ):
-    try:
-        language = Languages[language]
-    except KeyError as e:
+    if language not in __languages:
         raise NotImplementedError(
-            f'Language {e} not implemented, supported are: {", ".join([l.value for l in Languages])}'
+            f'Language {language} not implemented, supported are: {", ".join([l for l in __languages.keys()])}'
         )
 
-    if isinstance(export_to, str):
-        export_to = Path(export_to)
+    if not isinstance(namespace, str):
+        raise ValueError(
+            f'namespace must be of type str, {type(namespace)} provided'
+        )
 
-    if isinstance(namespace, str):
-        namespace = [namespace]
+    if not isinstance(export_to, Path):
+        raise ValueError(
+            f'export_to must be a Path instance, {type(export_to)} provided'
+        )
 
     if not isinstance(export_to, Path):
         raise ValueError(f'Export to should be string or path, was: {type(export_to)}')
 
+    exp = _get_export(
+        language=language,
+        namespace=namespace,
+        include_dump_only=include_dump_only,
+        include_load_only=include_load_only,
+        strip_schema_keyword=strip_schema_keyword,
+        expand_nested=expand_nested,
+        ordered_output=ordered_output
+    )
+
     with open(export_to, 'w') as f:
-        f.write(
-            _get_export(
-                language=language,
-                namespaces=namespace,
-                include_dump_only=include_dump_only,
-                include_load_only=include_load_only,
-                strip_schema_keyword=strip_schema_keyword,
-            )
-        )
+        f.write(exp)
 

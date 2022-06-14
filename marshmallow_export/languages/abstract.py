@@ -1,4 +1,4 @@
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta, abstractmethod, abstractproperty
 
 from marshmallow import Schema, fields
 
@@ -7,7 +7,7 @@ from enum import Enum
 
 from typing import Tuple, Dict, List, Set
 
-from marshmallow_export.types import Mapping, SchemaInfo
+from marshmallow_export.types import SchemaInfo
 
 
 class AbstractLanguage(metaclass=ABCMeta):
@@ -216,7 +216,7 @@ class AbstractLanguage(metaclass=ABCMeta):
     def _export_header(self, namespace: str) -> str:
         pass
 
-    def export_namespaces(
+    def export_namespace(
             self,
             namespace: str,
             include_dump_only: bool,
@@ -224,7 +224,7 @@ class AbstractLanguage(metaclass=ABCMeta):
     ) -> str:
 
         schemas = self.schemas[namespace]
-        enums = self.enums[namespace]
+        enums: List[Enum] = sorted(list(self.enums[namespace]), key=lambda e: e.__name__)
 
         # Sort schemas first by name, second by ordering
         schemas = list(schemas.items())
@@ -235,7 +235,7 @@ class AbstractLanguage(metaclass=ABCMeta):
         output = [header] if len(header) > 0 else list()
         output += [self._export_enum(e) for e in enums]
         output += [self._export_schema(
-            schema=schema,
+            schema=schema[0],
             include_dump_only=include_dump_only,
             include_load_only=include_load_only
         ) for schema in schemas]

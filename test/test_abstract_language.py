@@ -4,10 +4,10 @@ from marshmallow import Schema, fields
 
 from marshmallow_enum import EnumField
 
-from marshmallow_export.languages._abstract import AbstractLanguage
-from marshmallow_export.types import Mapping, SchemaInfo
+from marshmallow_export.languages.abstract import AbstractLanguage
+from marshmallow_export.types import SchemaInfo
 
-from typing import Tuple, Dict
+from typing import Tuple
 
 
 class FooSchema(Schema):

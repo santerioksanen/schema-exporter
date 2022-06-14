@@ -5,7 +5,7 @@ from marshmallow_enum import EnumField
 
 from marshmallow_export import type_mappings
 
-from ._abstract import AbstractLanguage
+from .abstract import AbstractLanguage
 from marshmallow_export.types import Mapping
 
 from typing import Tuple
@@ -47,8 +47,6 @@ type_mappings = {
 
 class Typescript(AbstractLanguage):
 
-    name = 'Typescript'
-
     @staticmethod
     def _export_enum(e: EnumMeta) -> str:
         fields = []
@@ -57,10 +55,10 @@ class Typescript(AbstractLanguage):
             if not isinstance(value, int):
                 value = f'"{value}"'
 
-            fields.append(f'  {key} = {value};')
+            fields.append(f'  {key} = {value},')
 
         fields = '\n'.join(fields)
-        return f'export enum {e.__name__} {{\n{fields}\n}};\n'
+        return f'export enum {e.__name__} {{\n{fields}\n}}\n'
 
     def _export_header(self, namespace: str) -> str:
         return ''
@@ -95,7 +93,7 @@ class Typescript(AbstractLanguage):
         
         if ts_type is None:
             if ma_field.__class__ not in type_mappings:
-                raise NotImplementedError(f'{ma_field} not implemented for {self.name}')
+                raise NotImplementedError(f'{ma_field} not implemented for {self.__name__}')
             
             ts_type = type_mappings[ma_field.__class__]
         
@@ -140,4 +138,4 @@ class Typescript(AbstractLanguage):
             )
 
         ts_fields = '\n'.join(ts_fields)
-        return f'export interface {schema_name} {{\n{ts_fields}\n}};\n'
+        return f'export interface {schema_name} {{\n{ts_fields}\n}}\n'

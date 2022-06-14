@@ -16,10 +16,10 @@ class TestEnum(Enum):
 
 
 TEST_ENUM_TS = '''export enum TestEnum {
-  A = "a";
-  B = 2;
-  C = "C";
-};
+  A = "a",
+  B = 2,
+  C = "C",
+}
 '''
 
 
@@ -30,10 +30,10 @@ class TestEnumAuto(Enum):
 
 
 TEST_ENUM_AUTO_TS = '''export enum TestEnumAuto {
-  A = 1;
-  B = 2;
-  C = 3;
-};
+  A = 1,
+  B = 2,
+  C = 3,
+}
 '''
 
 
@@ -61,7 +61,7 @@ TEST_SCHEMA_TS = '''export interface Test {
   nested?: Nested;
   nested_many?: Nested[];
   enum_field?: TestEnum;
-};
+}
 '''
 
 TEST_SCHEMA_TS_NOT_LOAD_ONLY = '''export interface Test {
@@ -72,7 +72,7 @@ TEST_SCHEMA_TS_NOT_LOAD_ONLY = '''export interface Test {
   nested?: Nested;
   nested_many?: Nested[];
   enum_field?: TestEnum;
-};
+}
 '''
 
 TEST_SCHEMA_TS_NOT_DUMP_ONLY = '''export interface Test {
@@ -83,10 +83,8 @@ TEST_SCHEMA_TS_NOT_DUMP_ONLY = '''export interface Test {
   nested?: Nested;
   nested_many?: Nested[];
   enum_field?: TestEnum;
-};
+}
 '''
-
-
 
 
 class TsTests(unittest.TestCase):
