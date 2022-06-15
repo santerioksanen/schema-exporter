@@ -29,8 +29,8 @@ jobs:
         run: |
           flake8 marshmallow_export --count --select=E9,F63,F7,F82 --show-source --statistics
           flake8 test --count --select=E9,F63,F7,F82 --show-source --statistics
-          flake8 marshmallow_export --count --max-complexity=10 --max-line-length=127 --statistics
-          flake8 test --count --max-complexity=10 --max-line-length=127 --statistics
+          flake8 marshmallow_export --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+          flake8 test --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       - name: Test with unittest
         run: |
           python test.py
