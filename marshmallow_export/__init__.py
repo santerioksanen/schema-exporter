@@ -62,6 +62,8 @@ def export_schema(
 
                 __enums[n][cls] = EnumInfo(kwargs=parsed_args)
 
+        return cls
+
     return decorate
 
 
