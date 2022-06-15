@@ -22,7 +22,8 @@ class FixtureTestCases(TestCase):
         subprocess.run(f'python {fname}.py', shell=True, check=True)
 
         os.chdir(old_wd)
-
+        
+        # Typescript
         with open(fixtures_path / f'{fname}.ts') as f:
             exp = f.read()
 
@@ -31,5 +32,15 @@ class FixtureTestCases(TestCase):
 
         self.assertEqual(exp, act)
 
+        # Rust
+        with open(fixtures_path / f'{fname}.rs') as f:
+            exp = f.read()
+
+        with open(fixtures_path / f'{fname}.rs.export') as f:
+            act = f.read()
+
+        self.assertEqual(exp, act)
+
         # Delete generated file
         os.remove(fixtures_path / f'{fname}.ts.export')
+        os.remove(fixtures_path / f'{fname}.rs.export')

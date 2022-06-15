@@ -4,10 +4,8 @@ from enum import Enum
 from pathlib import Path
 
 from .types import EnumInfo, SchemaInfo
-from .languages import Typescript
+from .languages import Rust, Typescript
 from .languages.abstract import AbstractLanguage
-from .type_mappings import Languages
-from .type_mappings import type_mappings
 
 from typing import Dict, Type
 
@@ -27,6 +25,7 @@ def _register_language(language: Type[AbstractLanguage]):
 
 # Register languages
 _register_language(Typescript)
+_register_language(Rust)
 
 
 def export_schema(
@@ -80,6 +79,7 @@ def _get_export(
     exporter = lng_class(
         schemas=__schemas,
         enums=__enums,
+        default_info_kwargs=__kwargs_defaults,
         strip_schema_keyword=strip_schema_keyword,
         expand_nested=expand_nested,
         ordered_output=ordered_output

@@ -48,23 +48,18 @@ class ListEnumSchema(Schema):
 
 class TestLanguage(AbstractLanguage):
 
+    @property
+    def type_mappings(self) -> Dict[fields.Field, Enum]:
+        pass
+
     @staticmethod
     def get_default_kwargs() -> Dict[str, Any]:
         pass
-
-    def _export_field(
-            self,
-            field_name: str,
-            ma_field: fields.Field,
-    ) -> Tuple[str, str]:
+    
+    def _format_schema_field(self, field_name: str, ma_field: fields.Field) -> str:
         pass
 
-    def _export_schema(
-            self,
-            schema: Schema,
-            include_dump_only: bool,
-            include_load_only: bool
-    ) -> str:
+    def _format_schema(self, schema: Schema, schema_info: SchemaInfo, schema_fields: List[str]) -> str:
         pass
 
     @staticmethod
@@ -75,7 +70,7 @@ class TestLanguage(AbstractLanguage):
     def _format_enum(e: EnumMeta, enum_fields: List[str], enum_info: EnumInfo) -> str:
         pass
     
-    def _export_header(self, namespace: str):
+    def format_header(self, namespace: str):
         pass
 
 
@@ -86,6 +81,7 @@ class AbstractLanguageTests(unittest.TestCase):
         tl = TestLanguage(
             schemas=dict(),
             enums=dict(),
+            default_info_kwargs=dict(),
             strip_schema_keyword=False
         )
 
@@ -99,6 +95,7 @@ class AbstractLanguageTests(unittest.TestCase):
         tl = TestLanguage(
             schemas=dict(),
             enums=dict(),
+            default_info_kwargs=dict(),
             strip_schema_keyword=True
         )
 
@@ -116,6 +113,7 @@ class AbstractLanguageTests(unittest.TestCase):
         tl = TestLanguage(
             schemas,
             enums,
+            dict(),
             False,
         )
 
@@ -157,6 +155,7 @@ class AbstractLanguageTests(unittest.TestCase):
         tl = TestLanguage(
             schemas,
             enums,
+            dict(),
             False,
         )
 
@@ -217,6 +216,7 @@ class AbstractLanguageTests(unittest.TestCase):
         tl = TestLanguage(
             schemas,
             enums,
+            dict(),
             False,
         )
 
@@ -240,6 +240,7 @@ class AbstractLanguageTests(unittest.TestCase):
         tl = TestLanguage(
             schemas,
             enums,
+            dict(),
             False,
         )
 
@@ -266,6 +267,7 @@ class AbstractLanguageTests(unittest.TestCase):
         tl = TestLanguage(
             schemas,
             enums,
+            dict(),
             False,
         )
 
@@ -289,6 +291,7 @@ class AbstractLanguageTests(unittest.TestCase):
         tl = TestLanguage(
             schemas,
             enums,
+            dict(),
             False,
         )
 

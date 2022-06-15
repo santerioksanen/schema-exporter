@@ -4,7 +4,7 @@ from marshmallow import Schema, fields
 from marshmallow_enum import EnumField
 
 from .abstract import AbstractLanguage
-from marshmallow_export.types import Mapping, EnumInfo
+from marshmallow_export.types import Mapping, EnumInfo, SchemaInfo
 
 from typing import Tuple, List, Dict, Any
 
@@ -45,6 +45,10 @@ type_mappings = {
 
 class Typescript(AbstractLanguage):
 
+    @property
+    def type_mappings(self) -> Dict[fields.Field, Mapping]:
+        return type_mappings
+
     @staticmethod
     def get_default_kwargs() -> Dict[str, Any]:
         return dict()
@@ -62,82 +66,39 @@ class Typescript(AbstractLanguage):
         enum_fields = '\n'.join(enum_fields)
         return f'export enum {e.__name__} {{\n{enum_fields}\n}}\n'
 
-    def _export_header(self, namespace: str) -> str:
+    def format_header(
+            self,
+            namespace: str,
+            include_dump_only: bool,
+            include_load_only: bool
+    ) -> str:
         return ''
+    
+    def _format_schema_field(
+            self,
+            field_name: str,
+            ma_field: fields.Field
+    ) -> str:
+        export_type, many = self.map_schema_field(ma_field)
 
-    def _export_field(
-        self,
-        field_name: str,
-        ma_field: fields.Field
-    ) -> Tuple[str, str]:
-
-        many = False
-        ts_type = None
-
-        if isinstance(ma_field, fields.List):
-            many = True
-            ma_field = ma_field.inner
-
-        if isinstance(ma_field, fields.Nested):
-            ts_type = self.get_schema_export_name(ma_field.nested)
-            if ma_field.many:
-                many = True
-
-        elif isinstance(ma_field, EnumField):
-            ts_type = ma_field.enum.__name__
-        
-        elif isinstance(ma_field, fields.List):
-            many = True
-            if isinstance(ma_field.inner, fields.Nested):
-                ts_type = self.get_schema_export_name(ma_field.inner.nested)
-            else:
-                ma_field = ma_field.inner
-        
-        if ts_type is None:
-            if ma_field.__class__ not in type_mappings:
-                raise NotImplementedError(f'{ma_field} not implemented for {self.__name__}')
-            
-            ts_type = type_mappings[ma_field.__class__]
-        
-        if isinstance(ts_type, Mapping):
-            ts_type = ts_type.mapping
-        
         if many:
-            ts_type += '[]'
+            export_type += '[]'
         
         if ma_field.allow_none:
-            ts_type += ' | null'
-
+            export_type += ' | null'
+        
         if not ma_field.required:
             field_name += '?'
         
-        return field_name, ts_type
+        return f'  {field_name}: {export_type};'
 
-    def _export_schema(
-        self,
-        schema: Schema,
-        include_dump_only: bool,
-        include_load_only: bool
+    def _format_schema(
+            self,
+            schema: Schema,
+            schema_info: SchemaInfo,
+            schema_fields: List[str]
     ) -> str:
-
         schema_name = self.get_schema_export_name(schema)
-        ts_fields = list()
+        schema_fields = '\n'.join(schema_fields)
+        return f'export interface {schema_name} {{\n{schema_fields}\n}}\n'
 
-        for field_name, ma_field in schema._declared_fields.items():
-            if not include_dump_only and ma_field.dump_only:
-                continue
-
-            if not include_load_only and ma_field.load_only:
-                continue
-
-            field_name, ts_type = self._export_field(
-                field_name,
-                ma_field
-            )
-
-            ts_fields.append(
-                f'  {field_name}: {ts_type};'
-            )
-
-        ts_fields = '\n'.join(ts_fields)
-        return f'export interface {schema_name} {{\n{ts_fields}\n}}\n'

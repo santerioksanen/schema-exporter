@@ -99,22 +99,25 @@ class TsTests(unittest.TestCase):
         }
         enums = dict()
 
-        exporter = Typescript(schemas, enums, True)
+        exporter = Typescript(schemas, enums, dict(), True)
 
-        exp = exporter._export_schema(
+        exp = exporter.format_schema(
             TestSchema,
+            SchemaInfo(),
             True,
             True,
         )
         self.assertEqual(exp, TEST_SCHEMA_TS)
-        exp = exporter._export_schema(
+        exp = exporter.format_schema(
             TestSchema,
+            SchemaInfo(),
             False,
             True,
         )
         self.assertEqual(exp, TEST_SCHEMA_TS_NOT_DUMP_ONLY)
-        exp = exporter._export_schema(
+        exp = exporter.format_schema(
             TestSchema,
+            SchemaInfo(),
             True,
             False,
         )

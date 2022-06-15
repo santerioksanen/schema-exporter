@@ -6,7 +6,7 @@ from enum import Enum, EnumMeta
 
 from typing import Tuple, Dict, List, Set, Any
 
-from marshmallow_export.types import SchemaInfo, EnumInfo
+from marshmallow_export.types import SchemaInfo, EnumInfo, Mapping
 
 
 class AbstractLanguage(metaclass=ABCMeta):
@@ -15,6 +15,7 @@ class AbstractLanguage(metaclass=ABCMeta):
             self,
             schemas: Dict[str, Dict[Schema, SchemaInfo]],
             enums: Dict[str, Dict[Enum, EnumInfo]],
+            default_info_kwargs: Dict[str, Any],
             strip_schema_keyword: bool = True,
             expand_nested: bool = True,
             ordered_output: bool = True,
@@ -23,7 +24,7 @@ class AbstractLanguage(metaclass=ABCMeta):
         self.schemas = schemas
         self.enums = enums
         self.strip_schema_keyword = strip_schema_keyword
-        self.imports = dict()
+        self.default_info_kwargs = default_info_kwargs
 
         if expand_nested:
             self._expand_nested()
@@ -31,6 +32,11 @@ class AbstractLanguage(metaclass=ABCMeta):
         if ordered_output:
             self._add_dependencies_for_schemas()
             self._add_ordering_to_schemas()
+
+    @property
+    @abstractmethod
+    def type_mappings(self) -> Dict[fields.Field, Mapping]:
+        pass
 
     @staticmethod
     @abstractmethod
@@ -86,13 +92,13 @@ class AbstractLanguage(metaclass=ABCMeta):
 
             for schema in schemas_to_add:
                 if schema not in self.schemas[namespace]:
-                    self.schemas[namespace][schema] = SchemaInfo()
+                    self.schemas[namespace][schema] = SchemaInfo(kwargs=self.default_info_kwargs)
 
             if namespace not in self.enums:
                 self.enums[namespace] = dict()
 
             for en in enums_to_add:
-                self.enums[namespace][en] = EnumInfo()
+                self.enums[namespace][en] = EnumInfo(kwargs=self.default_info_kwargs)
 
     def _add_dependencies_for_schema(
             self,
@@ -211,23 +217,6 @@ class AbstractLanguage(metaclass=ABCMeta):
     def _format_enum(e: EnumMeta, enum_fields: List[str], enum_info: EnumInfo) -> str:
         pass
 
-    @abstractmethod
-    def _export_field(
-            self,
-            field_name: str,
-            ma_field: fields.Field,
-    ) -> Tuple[str, str]:
-        pass
-
-    @abstractmethod
-    def _export_schema(
-            self,
-            schema: Schema,
-            include_dump_only: bool,
-            include_load_only: bool
-    ) -> str:
-        pass
-
     def format_enum(self, e: EnumMeta, enum_info: EnumInfo) -> str:
         enum_fields = [self._format_enum_field(
             field_name,
@@ -235,9 +224,81 @@ class AbstractLanguage(metaclass=ABCMeta):
         ) for field_name, value in e._member_map_.items()]
 
         return self._format_enum(e, enum_fields, enum_info)
+    
+    @abstractmethod
+    def _format_schema(
+            self,
+            schema: Schema,
+            schema_info: SchemaInfo,
+            schema_fields: List[str]
+    ) -> str:
+        pass
+
+    def map_schema_field(self, ma_field) -> Tuple[str, bool]:
+        many = False
+        export_type = None
+
+        if isinstance(ma_field, fields.List):
+            many = True
+            ma_field = ma_field.inner
+
+        if isinstance(ma_field, fields.Nested):
+            export_type = self.get_schema_export_name(ma_field.nested)
+            if ma_field.many:
+                many = True
+
+        elif isinstance(ma_field, EnumField):
+            export_type = ma_field.enum.__name__
+        
+        if export_type is None:
+            if ma_field.__class__ not in self.type_mappings:
+                raise NotImplementedError(f'{ma_field} not implemented for {self.__name__}')
+            
+            export_type = self.type_mappings[ma_field.__class__]
+        
+        if isinstance(export_type, Mapping):
+            export_type = export_type.mapping
+
+        return export_type, many        
 
     @abstractmethod
-    def _export_header(self, namespace: str) -> str:
+    def _format_schema_field(
+            self,
+            field_name: str,
+            ma_field: fields.Field
+    ) -> str:
+        pass
+
+    def format_schema(
+            self,
+            schema: Schema,
+            schema_info: SchemaInfo,
+            include_dump_only: bool,
+            include_load_only: bool
+    ) -> str:
+
+        schema_fields = list()
+
+        for field_name, ma_field in schema._declared_fields.items():
+            if not include_dump_only and ma_field.dump_only:
+                continue
+
+            if not include_load_only and ma_field.load_only:
+                continue
+
+            schema_fields.append(
+                self._format_schema_field(field_name, ma_field)
+            )
+        
+        return self._format_schema(schema, schema_info, schema_fields)
+
+    @abstractmethod
+    def format_header(
+            self,
+            namespace: str,
+            include_dump_only: bool,
+            include_load_only: bool
+    ) -> str:
         pass
 
     def export_namespace(
@@ -248,18 +309,23 @@ class AbstractLanguage(metaclass=ABCMeta):
     ) -> str:
 
         schemas = self.schemas[namespace]
-        enums: List[Enum] = sorted(list(self.enums[namespace].items()), key=lambda e: e[0].__name__)
+        enums: List[Enum] = sorted(list(self.enums[namespace].items()), key=lambda e: e[0].__name__.lower())
 
         # Sort schemas first by name, second by ordering
         schemas = list(schemas.items())
-        schemas.sort(key=lambda e: self.get_schema_export_name(e[0]))
+        schemas.sort(key=lambda e: self.get_schema_export_name(e[0]).lower())
         schemas.sort(key=lambda e: e[1].ordering)
 
-        header = self._export_header(namespace)
+        header = self.format_header(
+            namespace=namespace,
+            include_dump_only=include_dump_only,
+            include_load_only=include_load_only
+        )
         output = [header] if len(header) > 0 else list()
         output += [self.format_enum(e, enum_info) for e, enum_info in enums]
-        output += [self._export_schema(
+        output += [self.format_schema(
             schema=schema[0],
+            schema_info=schema[1],
             include_dump_only=include_dump_only,
             include_load_only=include_load_only
         ) for schema in schemas]
