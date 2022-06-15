@@ -1,2 +1,2 @@
-from .typescript import Typescript
-from .rust import Rust
+from .typescript import Typescript  # noqa
+from .rust import Rust  # noqa

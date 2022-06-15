@@ -1,12 +1,11 @@
 from enum import Enum, EnumMeta
 
 from marshmallow import Schema, fields
-from marshmallow_enum import EnumField
 
 from .abstract import AbstractLanguage
 from marshmallow_export.types import Mapping, EnumInfo, SchemaInfo
 
-from typing import Tuple, List, Dict, Any
+from typing import List, Dict, Any
 
 
 class Types(Enum):
@@ -73,7 +72,7 @@ class Typescript(AbstractLanguage):
             include_load_only: bool
     ) -> str:
         return ''
-    
+
     def _format_schema_field(
             self,
             field_name: str,
@@ -83,13 +82,13 @@ class Typescript(AbstractLanguage):
 
         if many:
             export_type += '[]'
-        
+
         if ma_field.allow_none:
             export_type += ' | null'
-        
+
         if not ma_field.required:
             field_name += '?'
-        
+
         return f'  {field_name}: {export_type};'
 
     def _format_schema(
@@ -101,4 +100,3 @@ class Typescript(AbstractLanguage):
         schema_name = self.get_schema_export_name(schema)
         schema_fields = '\n'.join(schema_fields)
         return f'export interface {schema_name} {{\n{schema_fields}\n}}\n'
-

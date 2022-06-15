@@ -8,9 +8,6 @@ import subprocess
 class FixtureTestCases(TestCase):
 
     def test_fixtures(self):
-        __enums = dict()
-        __schemas = dict()
-
         old_wd = os.getcwd()
 
         fixtures_path = Path(__name__).absolute().parent / 'test/fixtures/'
@@ -22,7 +19,7 @@ class FixtureTestCases(TestCase):
         subprocess.run(f'python {fname}.py', shell=True, check=True)
 
         os.chdir(old_wd)
-        
+
         # Typescript
         with open(fixtures_path / f'{fname}.ts') as f:
             exp = f.read()

@@ -48,32 +48,26 @@ class AbstractLanguage(metaclass=ABCMeta):
             namespace: str,
             schema: Schema
     ) -> Tuple[Set[Schema], Set[Enum]]:
-        """ If given schema has nested schemas or enums, returns a set 
-            with all chained schemas as well. 
+        """ If given schema has nested schemas or enums, returns a set
+            with all chained schemas as well.
         """
 
         schemas_to_add = set()
         enums_to_add = set()
 
-        for field in schema._declared_fields.values():
+        for ma_field in schema._declared_fields.values():
             recurse_field = None
-            if isinstance(field, fields.Nested):
-                if field.nested not in self.schemas[namespace]:
-                    schemas_to_add.add(field.nested)
-                    recurse_field = field.nested
+            if isinstance(ma_field, fields.List):
+                ma_field = ma_field.inner
 
-            elif isinstance(field, fields.List):
-                if isinstance(field.inner, fields.Nested):
-                    if field.inner.nested not in self.schemas[namespace]:
-                        schemas_to_add.add(field.inner.nested)
-                        recurse_field = field.inner.nested
-                elif isinstance(field.inner, EnumField):
-                    if namespace not in self.enums or field.inner not in self.enums[namespace]:
-                        enums_to_add.add(field.inner.enum)
+            if isinstance(ma_field, fields.Nested):
+                if ma_field.nested not in self.schemas[namespace]:
+                    schemas_to_add.add(ma_field.nested)
+                    recurse_field = ma_field.nested
 
-            elif isinstance(field, EnumField):
-                if namespace not in self.enums or field not in self.enums[namespace]:
-                    enums_to_add.add(field.enum)
+            elif isinstance(ma_field, EnumField):
+                if namespace not in self.enums or ma_field not in self.enums[namespace]:
+                    enums_to_add.add(ma_field.enum)
 
             if recurse_field is not None:
                 tmp = self._expand_schema(namespace, recurse_field)
@@ -113,34 +107,33 @@ class AbstractLanguage(metaclass=ABCMeta):
 
         changed = False
 
-        for field in schema._declared_fields.values():
+        for ma_field in schema._declared_fields.values():
             nested_schema = None
 
-            if isinstance(field, fields.Nested):
-                nested_schema = field.nested
+            if isinstance(ma_field, fields.List):
+                ma_field = ma_field.inner
 
-            elif isinstance(field, fields.List):
-                if isinstance(field.inner, fields.Nested):
-                    nested_schema = field.inner.nested
+            if isinstance(ma_field, fields.Nested):
+                nested_schema = ma_field.nested
 
             if nested_schema is not None:
                 nested_schema_info = self.schemas[namespace][nested_schema]
 
-                if not nested_schema in schema_info.nests:
+                if nested_schema not in schema_info.nests:
                     changed = True
                     schema_info.nests.add(nested_schema)
 
-                if not schema in nested_schema_info.nested_by:
+                if schema not in nested_schema_info.nested_by:
                     changed = True
                     nested_schema_info.nested_by.add(schema)
 
                 for deeply_nested_schema in nested_schema_info.nests:
-                    if not deeply_nested_schema in schema_info.nests:
+                    if deeply_nested_schema not in schema_info.nests:
                         changed = True
                         schema_info.nests.add(deeply_nested_schema)
 
                     deeply_nested_schema_info = self.schemas[namespace][deeply_nested_schema]
-                    if not schema in deeply_nested_schema_info.nested_by:
+                    if schema not in deeply_nested_schema_info.nested_by:
                         changed = True
                         deeply_nested_schema_info.nested_by.add(schema)
 
@@ -195,7 +188,7 @@ class AbstractLanguage(metaclass=ABCMeta):
                 get_schema_export_name(
                     TestSchema,
                     strip_schema_keyword=True
-                ) 
+                )
                 > 'Test'
 
                 get_schema_export_name(
@@ -228,7 +221,7 @@ class AbstractLanguage(metaclass=ABCMeta):
         ) for field_name, value in e._member_map_.items()]
 
         return self._format_enum(e, enum_fields, enum_info)
-    
+
     @abstractmethod
     def _format_schema(
             self,
@@ -253,17 +246,17 @@ class AbstractLanguage(metaclass=ABCMeta):
 
         elif isinstance(ma_field, EnumField):
             export_type = ma_field.enum.__name__
-        
+
         if export_type is None:
             if ma_field.__class__ not in self.type_mappings:
                 raise NotImplementedError(f'{ma_field} not implemented for {self.__name__}')
-            
+
             export_type = self.type_mappings[ma_field.__class__]
-        
+
         if isinstance(export_type, Mapping):
             export_type = export_type.mapping
 
-        return export_type, many        
+        return export_type, many
 
     @abstractmethod
     def _format_schema_field(
@@ -293,7 +286,7 @@ class AbstractLanguage(metaclass=ABCMeta):
             schema_fields.append(
                 self._format_schema_field(field_name, ma_field)
             )
-        
+
         return self._format_schema(schema, schema_info, schema_fields)
 
     @abstractmethod

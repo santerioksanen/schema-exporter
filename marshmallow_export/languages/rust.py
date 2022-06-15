@@ -1,13 +1,11 @@
 from enum import Enum, EnumMeta
 
 from marshmallow import Schema, fields
-from marshmallow_enum import EnumField
 
 from .abstract import AbstractLanguage
 from marshmallow_export.types import Mapping, EnumInfo, SchemaInfo
 
-from typing import Tuple, Dict, Any, List
-
+from typing import Dict, Any, List
 
 DEFAULT_ENUM_DERIVES = [
     Mapping(mapping='Debug'),
@@ -17,7 +15,6 @@ DEFAULT_ENUM_DERIVES = [
     Mapping(mapping='Deserialize', imports={'serde': ['Deserialize']}),
     Mapping(mapping='EnumString', imports={'strum_macros': ['EnumString']}),
 ]
-
 
 DEFAULT_SCHEMA_DERIVES = [
     Mapping(mapping='Debug'),
@@ -105,9 +102,9 @@ class Rust(AbstractLanguage):
                 for rust_derive in enum_info.kwargs['rust_enum_derives']:
                     if isinstance(rust_derive.imports, dict):
                         for lib, imp in rust_derive.imports.items():
-                            if not lib in imports:
+                            if lib not in imports:
                                 imports[lib] = set()
-                            
+
                             imports[lib].update(imp)
 
         for schema, schema_info in self.schemas[namespace].items():
@@ -115,9 +112,9 @@ class Rust(AbstractLanguage):
                 for rust_derive in schema_info.kwargs['rust_schema_derives']:
                     if isinstance(rust_derive.imports, dict):
                         for lib, imp in rust_derive.imports.items():
-                            if not lib in imports:
+                            if lib not in imports:
                                 imports[lib] = set()
-                            
+
                             imports[lib].update(imp)
 
             for ma_field in schema._declared_fields.values():
@@ -129,7 +126,7 @@ class Rust(AbstractLanguage):
 
                 if isinstance(ma_field, fields.List):
                     ma_field = ma_field.inner
-                
+
                 if ma_field.__class__ not in self.type_mappings:
                     continue
 
@@ -138,11 +135,11 @@ class Rust(AbstractLanguage):
                     continue
 
                 for lib, imp in export_type.imports.items():
-                    if not lib in imports:
+                    if lib not in imports:
                         imports[lib] = set()
-                    
+
                     imports[lib].update(imp)
-        
+
         imports = sorted(list(imports.items()), key=lambda e: e[0].lower())
         formatted = list()
         for lib, imp in imports:
@@ -150,7 +147,7 @@ class Rust(AbstractLanguage):
             formatted_imp = ''
             if len(imp) > 1:
                 formatted_imp = '{'
-            
+
             formatted_imp += ', '.join(imp)
             if len(imp) > 1:
                 formatted_imp += '}'
@@ -170,10 +167,10 @@ class Rust(AbstractLanguage):
 
         if many:
             export_type = f'Vec<{export_type}>'
-        
+
         if ma_field.allow_none or not ma_field.required:
             export_type = f'Option<{export_type}>'
-        
+
         return f'    pub {field_name}: {export_type},'
 
     def _format_schema(
@@ -194,4 +191,3 @@ class Rust(AbstractLanguage):
             derives = f'#[derive({", ".join([m for m in derive_str])})]\n'
 
         return f'{derives}pub struct {schema_name} {{\n{schema_fields}\n}}\n'
-

@@ -1,5 +1,5 @@
 from marshmallow import Schema
-from enum import Enum
+from enum import Enum, EnumMeta
 
 from pathlib import Path
 
@@ -7,7 +7,7 @@ from .types import EnumInfo, SchemaInfo
 from .languages import Rust, Typescript
 from .languages.abstract import AbstractLanguage
 
-from typing import Dict, Type
+from typing import Dict, Type, List, Any
 
 
 __schemas = dict()
@@ -28,6 +28,22 @@ _register_language(Typescript)
 _register_language(Rust)
 
 
+def _add_schema(namespaces: List[str], cls: Type[Schema], parsed_args: Dict[str, Any]) -> None:
+    for n in namespaces:
+        if n not in __schemas:
+            __schemas[n] = dict()
+
+        __schemas[n][cls] = SchemaInfo(kwargs=parsed_args)
+
+
+def _add_enum(namespaces: List[str], cls: EnumMeta, parsed_args: Dict[str, Any]) -> None:
+    for n in namespaces:
+        if n not in __enums:
+            __enums[n] = dict()
+
+        __enums[n][cls] = EnumInfo(kwargs=parsed_args)
+
+
 def export_schema(
         namespace: str = 'default',
         **kwargs
@@ -46,21 +62,14 @@ def export_schema(
     if not isinstance(namespace, str):
         raise ValueError('Namespace should be a string containing one or more comma separated values')
 
-    namespace = namespace.split(',')
+    namespaces = namespace.split(',')
 
     def decorate(cls):
         if issubclass(cls, Schema):
-            for n in namespace:
-                if n not in __schemas:
-                    __schemas[n] = dict()
+            _add_schema(namespaces, cls, parsed_args)
 
-                __schemas[n][cls] = SchemaInfo(kwargs=parsed_args)
         elif issubclass(cls, Enum):
-            for n in namespace:
-                if n not in __enums:
-                    __enums[n] = dict()
-
-                __enums[n][cls] = EnumInfo(kwargs=parsed_args)
+            _add_enum(namespaces, cls, parsed_args)
 
         return cls
 
@@ -134,4 +143,3 @@ def export_mappings(
 
     with open(export_to, 'w') as f:
         f.write(exp)
-
