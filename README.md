@@ -1,3 +1,5 @@
+![tests](https://github.com/santerioksanen/marshmallow-export/actions/workflows/run_tests.yml/badge.svg?branch=main)
+
 # Marshmallow-export
 _Generates Typescript and Rust interfaces/structs from Marshmallow schemas_
 
