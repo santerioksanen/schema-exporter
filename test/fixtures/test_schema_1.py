@@ -29,13 +29,28 @@ class LeafSchema(Schema):
     integer_1 = fields.Integer()
 
 
+class LeafSchema2(Schema):
+    datetime_1 = fields.DateTime(required=True)
+    decimal_1 = fields.Decimal(required=True)
+
+
+class MiddleSchema(Schema):
+    test_enum_2 = fields.List(EnumField(TestEnum2))
+    leaf_schema = fields.Nested(LeafSchema)
+
+
 @export_schema(namespace='default')
 class RootSchema(Schema):
-    nested_leaf_1 = fields.Nested(LeafSchema)
-    nested_leaf_2 = fields.Nested(LeafSchema, many=True)
-    list_leaf_1 = fields.List(fields.Nested(LeafSchema))
+    nested_leaf_1 = fields.Nested(MiddleSchema)
+    nested_leaf_2 = fields.Nested(MiddleSchema, many=True)
+    list_leaf_1 = fields.List(fields.Nested(MiddleSchema))
     test_enum_1 = EnumField(TestEnum1)
-    test_enum_2 = fields.List(EnumField(TestEnum2))
+
+
+@export_schema(namespace='default')
+class RootSchema2(Schema):
+    nested_leaf_1 = fields.Nested(LeafSchema2, required=True)
+
 
 
 p = Path().cwd() / 'test_schema_1.ts.export'

@@ -19,10 +19,23 @@ export interface Leaf {
   integer_1?: number;
 }
 
-export interface Root {
-  nested_leaf_1?: Leaf;
-  nested_leaf_2?: Leaf[];
-  list_leaf_1?: Leaf[];
-  test_enum_1?: TestEnum1;
+export interface Leaf2 {
+  datetime_1: Date;
+  decimal_1: number;
+}
+
+export interface Middle {
   test_enum_2?: TestEnum2[];
+  leaf_schema?: Leaf;
+}
+
+export interface Root2 {
+  nested_leaf_1: Leaf2;
+}
+
+export interface Root {
+  nested_leaf_1?: Middle;
+  nested_leaf_2?: Middle[];
+  list_leaf_1?: Middle[];
+  test_enum_1?: TestEnum1;
 }

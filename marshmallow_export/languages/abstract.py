@@ -87,8 +87,12 @@ class AbstractLanguage(metaclass=ABCMeta):
             to be included in formatted output
         """
         for namespace, schema_list in self.schemas.items():
+            schemas_to_add = set()
+            enums_to_add = set()
             for schema in schema_list.keys():
-                schemas_to_add, enums_to_add = self._expand_schema(namespace, schema)
+                _schemas_to_add, _enums_to_add = self._expand_schema(namespace, schema)
+                schemas_to_add.update(_schemas_to_add)
+                enums_to_add.update(_enums_to_add)
 
             for schema in schemas_to_add:
                 if schema not in self.schemas[namespace]:

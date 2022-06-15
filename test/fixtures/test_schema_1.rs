@@ -28,10 +28,26 @@ pub struct Leaf {
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]
-pub struct Root {
-    pub nested_leaf_1: Option<Leaf>,
-    pub nested_leaf_2: Option<Vec<Leaf>>,
-    pub list_leaf_1: Option<Vec<Leaf>>,
-    pub test_enum_1: Option<TestEnum1>,
+pub struct Leaf2 {
+    pub datetime_1: DateTime<Utc>,
+    pub decimal_1: Decimal,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+pub struct Middle {
     pub test_enum_2: Option<Vec<TestEnum2>>,
+    pub leaf_schema: Option<Leaf>,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+pub struct Root2 {
+    pub nested_leaf_1: Leaf2,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+pub struct Root {
+    pub nested_leaf_1: Option<Middle>,
+    pub nested_leaf_2: Option<Vec<Middle>>,
+    pub list_leaf_1: Option<Vec<Middle>>,
+    pub test_enum_1: Option<TestEnum1>,
 }
