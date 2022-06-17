@@ -19,7 +19,6 @@ DEFAULT_ENUM_DERIVES = [
 DEFAULT_SCHEMA_DERIVES = [
     Mapping(mapping='Debug'),
     Mapping(mapping='Clone'),
-    Mapping(mapping='Copy'),
     Mapping(mapping='Serialize', imports={'serde': ['Serialize']}),
     Mapping(mapping='Deserialize', imports={'serde': ['Deserialize']}),
 ]

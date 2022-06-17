@@ -17,7 +17,7 @@ pub enum TestEnum2 {
     C,
 }
 
-#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Leaf {
     pub bool_1: Option<bool>,
     pub boolean_1: Option<bool>,
@@ -27,24 +27,24 @@ pub struct Leaf {
     pub integer_1: Option<i64>,
 }
 
-#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Leaf2 {
     pub datetime_1: DateTime<Utc>,
     pub decimal_1: Decimal,
 }
 
-#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Middle {
     pub test_enum_2: Option<Vec<TestEnum2>>,
     pub leaf_schema: Option<Leaf>,
 }
 
-#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Root2 {
     pub nested_leaf_1: Leaf2,
 }
 
-#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Root {
     pub nested_leaf_1: Option<Middle>,
     pub nested_leaf_2: Option<Vec<Middle>>,
