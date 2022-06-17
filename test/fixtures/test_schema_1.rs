@@ -1,16 +1,16 @@
 use chrono::{DateTime, Utc};
 use rust_decimal::Decimal;
-use serde::{Deserialize, Serialize};
-use strum_macros::EnumString;
+use serde_derive::{Deserialize, Serialize};
+use strum_macros::{AsStaticStr, Display, EnumString};
 
-#[derive(Clone, Copy, Debug, Deserialize, EnumString, Serialize)]
+#[derive(AsStaticStr, Clone, Copy, Debug, Deserialize, Display, EnumString, Serialize)]
 pub enum TestEnum1 {
     A,
     B,
     C,
 }
 
-#[derive(Clone, Copy, Debug, Deserialize, EnumString, Serialize)]
+#[derive(AsStaticStr, Clone, Copy, Debug, Deserialize, Display, EnumString, Serialize)]
 pub enum TestEnum2 {
     A,
     B,

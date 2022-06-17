@@ -11,16 +11,18 @@ DEFAULT_ENUM_DERIVES = [
     Mapping(mapping='Debug'),
     Mapping(mapping='Clone'),
     Mapping(mapping='Copy'),
-    Mapping(mapping='Serialize', imports={'serde': ['Serialize']}),
-    Mapping(mapping='Deserialize', imports={'serde': ['Deserialize']}),
+    Mapping(mapping='Serialize', imports={'serde_derive': ['Serialize']}),
+    Mapping(mapping='Deserialize', imports={'serde_derive': ['Deserialize']}),
     Mapping(mapping='EnumString', imports={'strum_macros': ['EnumString']}),
+    Mapping(mapping='Display', imports={'strum_macros': ['Display']}),
+    Mapping(mapping='AsStaticStr', imports={'strum_macros': ['AsStaticStr']}),
 ]
 
 DEFAULT_SCHEMA_DERIVES = [
     Mapping(mapping='Debug'),
     Mapping(mapping='Clone'),
-    Mapping(mapping='Serialize', imports={'serde': ['Serialize']}),
-    Mapping(mapping='Deserialize', imports={'serde': ['Deserialize']}),
+    Mapping(mapping='Serialize', imports={'serde_derive': ['Serialize']}),
+    Mapping(mapping='Deserialize', imports={'serde_derive': ['Deserialize']}),
 ]
 
 
