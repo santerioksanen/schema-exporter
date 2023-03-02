@@ -1,18 +1,9 @@
 import unittest
-import marshmallow as ma
-
-from marshmallow_enum import EnumField
-
-from enum import Enum, auto
 
 from marshmallow_export.languages import Typescript
-from marshmallow_export.types import SchemaInfo, EnumInfo
+from marshmallow_export.types import EnumInfo
 
-
-class TestEnum(Enum):
-    A = 'a'
-    B = 2
-    C = 'C'
+from common import test_schema, TestEnum, TestEnumAuto
 
 
 TEST_ENUM_TS = '''export enum TestEnum {
@@ -22,35 +13,12 @@ TEST_ENUM_TS = '''export enum TestEnum {
 }
 '''
 
-
-class TestEnumAuto(Enum):
-    A = auto()
-    B = auto()
-    C = auto()
-
-
 TEST_ENUM_AUTO_TS = '''export enum TestEnumAuto {
   A = 1,
   B = 2,
   C = 3,
 }
 '''
-
-
-class NestedSchema(ma.Schema):
-    foo = ma.fields.Integer()
-
-
-class TestSchema(ma.Schema):
-    load_only = ma.fields.Integer(load_only=True)
-    dump_only = ma.fields.Integer(dump_only=True)
-    required = ma.fields.Integer(required=True)
-    allow_none = ma.fields.Integer(allow_none=True)
-    required_allow_none = ma.fields.Integer(required=True, allow_none=True)
-    nested = ma.fields.Nested(NestedSchema)
-    nested_many = ma.fields.Nested(NestedSchema, many=True)
-    enum_field = EnumField(TestEnum)
-
 
 TEST_SCHEMA_TS = '''export interface Test {
   load_only?: number;
@@ -61,6 +29,8 @@ TEST_SCHEMA_TS = '''export interface Test {
   nested?: Nested;
   nested_many?: Nested[];
   enum_field?: TestEnum;
+  datetime_field?: Date;
+  uuid_field?: string;
 }
 '''
 
@@ -72,6 +42,8 @@ TEST_SCHEMA_TS_NOT_LOAD_ONLY = '''export interface Test {
   nested?: Nested;
   nested_many?: Nested[];
   enum_field?: TestEnum;
+  datetime_field?: Date;
+  uuid_field?: string;
 }
 '''
 
@@ -83,6 +55,8 @@ TEST_SCHEMA_TS_NOT_DUMP_ONLY = '''export interface Test {
   nested?: Nested;
   nested_many?: Nested[];
   enum_field?: TestEnum;
+  datetime_field?: Date;
+  uuid_field?: string;
 }
 '''
 
@@ -91,43 +65,31 @@ class TsTests(unittest.TestCase):
 
     def test_basic(self):
 
-        schemas = {
-            'default': {
-                NestedSchema: SchemaInfo(),
-                TestSchema: SchemaInfo(),
-            }
-        }
-        enums = dict()
+        enums = []
 
-        exporter = Typescript(schemas, enums, dict(), True)
+        exporter = Typescript([test_schema], enums)
 
         exp = exporter.format_schema(
-            TestSchema,
-            SchemaInfo(),
+            test_schema,
             True,
             True,
         )
         self.assertEqual(exp, TEST_SCHEMA_TS)
         exp = exporter.format_schema(
-            TestSchema,
-            SchemaInfo(),
+            test_schema,
             False,
             True,
         )
         self.assertEqual(exp, TEST_SCHEMA_TS_NOT_DUMP_ONLY)
         exp = exporter.format_schema(
-            TestSchema,
-            SchemaInfo(),
+            test_schema,
             True,
             False,
         )
         self.assertEqual(exp, TEST_SCHEMA_TS_NOT_LOAD_ONLY)
 
     def test_enum(self):
-        schemas = dict()
-        enums = dict()
-
-        ts = Typescript(schemas, enums, True)
+        ts = Typescript([], [])
 
         exp = ts.format_enum(TestEnum, EnumInfo)
         self.assertEqual(exp, TEST_ENUM_TS)

@@ -3,7 +3,7 @@ from enum import Enum, EnumMeta
 from marshmallow import Schema, fields
 
 from .abstract import AbstractLanguage
-from marshmallow_export.types import Mapping, EnumInfo, ParsedSchema, PythonDatatypes
+from marshmallow_export.types import Mapping, EnumInfo, ParsedSchema, PythonDatatypes, ParsedField
 
 from typing import List, Dict, Any
 
@@ -64,7 +64,6 @@ class Typescript(AbstractLanguage):
 
     def format_header(
             self,
-            namespace: str,
             include_dump_only: bool,
             include_load_only: bool
     ) -> str:
@@ -72,28 +71,29 @@ class Typescript(AbstractLanguage):
 
     def _format_schema_field(
             self,
-            field_name: str,
-            ma_field: fields.Field
+            field: ParsedField,
     ) -> str:
-        export_type, many = self.map_schema_field(ma_field)
+        export_type = self.map_schema_field(field)
+        field_name = field.field_name
+        
+        if isinstance(export_type, Mapping):
+            export_type = export_type.mapping
 
-        if many:
+        if field.many:
             export_type += '[]'
 
-        if ma_field.allow_none:
+        if field.allow_none:
             export_type += ' | null'
 
-        if not ma_field.required:
+        if not field.required:
             field_name += '?'
 
         return f'  {field_name}: {export_type};'
 
     def _format_schema(
             self,
-            schema: Schema,
-            schema_info: ParsedSchema,
+            schema: ParsedSchema,
             schema_fields: List[str]
     ) -> str:
-        schema_name = self.get_schema_export_name(schema)
         schema_fields = '\n'.join(schema_fields)
-        return f'export interface {schema_name} {{\n{schema_fields}\n}}\n'
+        return f'export interface {schema.name} {{\n{schema_fields}\n}}\n'

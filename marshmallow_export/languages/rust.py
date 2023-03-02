@@ -1,11 +1,11 @@
-from enum import Enum, EnumMeta
+from enum import Enum
 
-from marshmallow import Schema, fields
+from marshmallow import Schema
 
 from .abstract import AbstractLanguage
-from marshmallow_export.types import Mapping, EnumInfo, ParsedSchema, PythonDatatypes
+from marshmallow_export.types import Mapping, EnumInfo, ParsedSchema, PythonDatatypes, ParsedField
 
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Type
 
 DEFAULT_ENUM_DERIVES = [
     Mapping(mapping='Debug'),
@@ -76,7 +76,7 @@ class Rust(AbstractLanguage):
         return f'    {field_name},'
 
     @staticmethod
-    def _format_enum(e: EnumMeta, enum_fields: List[str], enum_info: EnumInfo) -> str:
+    def _format_enum(e: Type[Enum], enum_fields: List[str], enum_info: EnumInfo) -> str:
         enum_fields = '\n'.join(enum_fields)
         derives = ''
         if 'rust_enum_derives' in enum_info.kwargs and len(enum_info.kwargs['rust_enum_derives']) > 0:
@@ -90,12 +90,11 @@ class Rust(AbstractLanguage):
 
     def format_header(
             self,
-            namespace: str,
             include_dump_only: bool,
             include_load_only: bool
     ) -> str:
         imports = dict()
-        for enum_info in self.enums[namespace].values():
+        for _, enum_info in self.enums:
             if 'rust_enum_derives' in enum_info.kwargs:
                 for rust_derive in enum_info.kwargs['rust_enum_derives']:
                     if isinstance(rust_derive.imports, dict):
@@ -105,9 +104,9 @@ class Rust(AbstractLanguage):
 
                             imports[lib].update(imp)
 
-        for schema, schema_info in self.schemas[namespace].items():
-            if 'rust_schema_derives' in schema_info.kwargs:
-                for rust_derive in schema_info.kwargs['rust_schema_derives']:
+        for schema in self.schemas:
+            if 'rust_schema_derives' in schema.kwargs:
+                for rust_derive in schema.kwargs['rust_schema_derives']:
                     if isinstance(rust_derive.imports, dict):
                         for lib, imp in rust_derive.imports.items():
                             if lib not in imports:
@@ -115,20 +114,17 @@ class Rust(AbstractLanguage):
 
                             imports[lib].update(imp)
 
-            for ma_field in schema._declared_fields.values():
-                if not include_dump_only and ma_field.dump_only:
+            for field in schema.fields:
+                if not include_dump_only and field.dump_only:
                     continue
 
-                if not include_load_only and ma_field.load_only:
+                if not include_load_only and field.load_only:
                     continue
 
-                if isinstance(ma_field, fields.List):
-                    ma_field = ma_field.inner
-
-                if ma_field.__class__ not in self.type_mappings:
+                if field.python_datatype not in self.type_mappings:
                     continue
 
-                export_type = self.type_mappings[ma_field.__class__]
+                export_type = self.type_mappings[field.python_datatype]
                 if not isinstance(export_type.imports, dict):
                     continue
 
@@ -158,34 +154,35 @@ class Rust(AbstractLanguage):
 
     def _format_schema_field(
             self,
-            field_name: str,
-            ma_field: fields.Field
+            field: ParsedField,
     ) -> str:
-        export_type, many = self.map_schema_field(ma_field)
+        export_type = self.map_schema_field(field)
+        field_name = field.field_name
 
-        if many:
+        if isinstance(export_type, Mapping):
+            export_type = export_type.mapping
+
+        if field.many:
             export_type = f'Vec<{export_type}>'
 
-        if ma_field.allow_none or not ma_field.required:
+        if field.allow_none or not field.required:
             export_type = f'Option<{export_type}>'
 
         return f'    pub {field_name}: {export_type},'
 
     def _format_schema(
             self,
-            schema: Schema,
-            schema_info: ParsedSchema,
+            schema: ParsedSchema,
             schema_fields: List[str]
     ) -> str:
-        schema_name = self.get_schema_export_name(schema)
         schema_fields = '\n'.join(schema_fields)
         derives = ''
 
-        if 'rust_schema_derives' in schema_info.kwargs and len(schema_info.kwargs['rust_schema_derives']) > 0:
+        if 'rust_schema_derives' in schema.kwargs and len(schema.kwargs['rust_schema_derives']) > 0:
             derive_str = sorted(
-                [m.mapping for m in schema_info.kwargs["rust_schema_derives"]],
+                [m.mapping for m in schema.kwargs["rust_schema_derives"]],
                 key=lambda e: e.lower()
             )
             derives = f'#[derive({", ".join([m for m in derive_str])})]\n'
 
-        return f'{derives}pub struct {schema_name} {{\n{schema_fields}\n}}\n'
+        return f'{derives}pub struct {schema.name} {{\n{schema_fields}\n}}\n'

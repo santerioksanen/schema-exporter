@@ -107,25 +107,18 @@ def _get_export(
         ordered_output: bool,
 ) -> str:
 
-    lng_class = __languages[language]
-    exporter = lng_class(
-        schemas=__schemas,
-        enums=__enums,
-        default_info_kwargs=__kwargs_defaults,
-        strip_schema_keyword=strip_schema_keyword,
-        expand_nested=expand_nested,
-        ordered_output=ordered_output
-    )
-
     # Parse schemas
     parser = _MarshmallowParser(
         default_info_kwargs=__kwargs_defaults,
         strip_schema_from_name=strip_schema_keyword
     )
-    for schema, schema_info in __schemas[namespace].items():
-        parser.parse_and_add_schema(schema, schema_info.kwargs)
-    for en, en_info in __enums[namespace].items():
-        parser.add_enum(en, en_info.kwargs)
+    if namespace in __schemas:
+        for schema, schema_info in __schemas[namespace].items():
+            parser.parse_and_add_schema(schema, schema_info.kwargs)
+    
+    if namespace in __enums:
+        for en, en_info in __enums[namespace].items():
+            parser.add_enum(en, en_info.kwargs)
     if expand_nested:
         parser.parse_nested()
 
@@ -138,10 +131,15 @@ def _get_export(
         schemas.sort(key=lambda e: e.name.lower())
         schemas.sort(key=lambda e: e.ordering)
         enums.sort(key=lambda e: e[0].__name__.lower())
+    
+    lng_class = __languages[language]
+    exporter = lng_class(
+        schemas=schemas,
+        enums=enums
+    )
 
     # Export schemas
-    return exporter.export_namespace(
-        namespace=namespace,
+    return exporter.export(
         include_dump_only=include_dump_only,
         include_load_only=include_load_only
     )
