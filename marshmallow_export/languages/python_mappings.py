@@ -1,28 +1,7 @@
-from dataclasses import dataclass
 from typing import Type
-from enum import Enum, auto
 from marshmallow import fields
 
-
-class PythonDatatypes(Enum):
-    BOOL = auto()
-    CONSTANT = auto()
-    STRING = auto()
-    DATETIME = auto()
-    DECIMAL = auto()
-    DICT = auto()
-    EMAIL = auto()
-    FIELD = auto()
-    FLOAT = auto()
-    FUNCTION = auto()
-    INT = auto()
-    MAPPING = auto()
-    METHOD = auto()
-    NUMBER = auto()
-    RAW = auto()
-    TIMEDELTA = auto()
-    URL = auto()
-    UUID = auto()
+from marshmallow_export.types import PythonDatatypes
 
 
 marshmallow_mappings: dict[Type[fields.Field], PythonDatatypes] = {
@@ -48,9 +27,3 @@ marshmallow_mappings: dict[Type[fields.Field], PythonDatatypes] = {
     fields.Url: PythonDatatypes.URL,
     fields.UUID: PythonDatatypes.UUID,
 }
-
-
-@dataclass
-class PythonTypeNode:
-    python_datatype: PythonDatatypes
-

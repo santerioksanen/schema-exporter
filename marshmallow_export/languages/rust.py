@@ -3,11 +3,9 @@ from enum import Enum, EnumMeta
 from marshmallow import Schema, fields
 
 from .abstract import AbstractLanguage
-from marshmallow_export.types import Mapping, EnumInfo, SchemaInfo
+from marshmallow_export.types import Mapping, EnumInfo, ParsedSchema, PythonDatatypes
 
 from typing import Dict, Any, List
-
-from .python_mappings import PythonDatatypes
 
 DEFAULT_ENUM_DERIVES = [
     Mapping(mapping='Debug'),
@@ -176,7 +174,7 @@ class Rust(AbstractLanguage):
     def _format_schema(
             self,
             schema: Schema,
-            schema_info: SchemaInfo,
+            schema_info: ParsedSchema,
             schema_fields: List[str]
     ) -> str:
         schema_name = self.get_schema_export_name(schema)

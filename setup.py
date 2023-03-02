@@ -7,5 +7,5 @@ setup(
     author='Santeri Oksanen',
     url='https://github.com/santerioksanen/marshmallow-export',
     packages=['marshmallow_export', 'marshmallow_export.languages'],
-    install_requires=['marshmallow', 'marshmallow_enum', 'django-rest-framework'],
+    install_requires=['marshmallow', 'marshmallow_enum', 'django_rest_framework'],
 )

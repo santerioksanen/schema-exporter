@@ -7,12 +7,15 @@ from pathlib import Path
 from .types import EnumInfo, SchemaInfo
 from .languages import Rust, Typescript
 from .languages.abstract import AbstractLanguage
+from ._parsers import _MarshmallowParser
+from ._sorting import _mark_nested_schemas, _add_ordering_to_schemas
 
 from typing import Dict, Type, List, Any
 
 
 __schemas = dict()
 __enums = dict()
+__serializers = dict()
 __languages: Dict[str, Type[AbstractLanguage]] = dict()
 __kwargs_defaults = dict()
 
@@ -31,7 +34,7 @@ _register_language(Rust)
 
 def _add_schema(
         namespaces: List[str],
-        cls: Type[Schema | ModelSerializer],
+        cls: Type[Schema],
         parsed_args: Dict[str, Any]
 ) -> None:
     for n in namespaces:
@@ -39,6 +42,18 @@ def _add_schema(
             __schemas[n] = dict()
 
         __schemas[n][cls] = SchemaInfo(kwargs=parsed_args)
+
+
+def _add_serializer(
+        namespaces: List[str],
+        cls: Type[ModelSerializer],
+        parsed_args: Dict[str, Any]
+) -> None:
+    for n in namespaces:
+        if n not in __schemas:
+            __schemas[n] = dict()
+        
+        __serializers[n][cls] = SchemaInfo(kwargs=parsed_args)
 
 
 def _add_enum(namespaces: List[str], cls: EnumMeta, parsed_args: Dict[str, Any]) -> None:
@@ -70,9 +85,10 @@ def export_schema(
     namespaces = namespace.split(',')
 
     def decorate(cls):
-        if issubclass(cls, Schema) or issubclass(cls, ModelSerializer):
+        if issubclass(cls, Schema):
             _add_schema(namespaces, cls, parsed_args)
-
+        elif issubclass(cls, ModelSerializer):
+            _add_serializer(namespaces, cls, parsed_args)
         elif issubclass(cls, Enum):
             _add_enum(namespaces, cls, parsed_args)
 
@@ -101,6 +117,29 @@ def _get_export(
         ordered_output=ordered_output
     )
 
+    # Parse schemas
+    parser = _MarshmallowParser(
+        default_info_kwargs=__kwargs_defaults,
+        strip_schema_from_name=strip_schema_keyword
+    )
+    for schema, schema_info in __schemas[namespace].items():
+        parser.parse_and_add_schema(schema, schema_info.kwargs)
+    for en, en_info in __enums[namespace].items():
+        parser.add_enum(en, en_info.kwargs)
+    if expand_nested:
+        parser.parse_nested()
+
+    schemas = list(parser.schemas.values())
+    enums = list(parser.enums.values())
+
+    if ordered_output:
+        _mark_nested_schemas(schemas)
+        _add_ordering_to_schemas(schemas)
+        schemas.sort(key=lambda e: e.name.lower())
+        schemas.sort(key=lambda e: e.ordering)
+        enums.sort(key=lambda e: e[0].__name__.lower())
+
+    # Export schemas
     return exporter.export_namespace(
         namespace=namespace,
         include_dump_only=include_dump_only,
