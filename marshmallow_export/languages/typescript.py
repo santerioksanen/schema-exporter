@@ -7,6 +7,8 @@ from marshmallow_export.types import Mapping, EnumInfo, SchemaInfo
 
 from typing import List, Dict, Any
 
+from .python_mappings import PythonDatatypes
+
 
 class Types(Enum):
     BOOL = Mapping(mapping='boolean')
@@ -17,35 +19,32 @@ class Types(Enum):
     ANY = Mapping(mapping='any')
 
 
-type_mappings = {
-    fields.Bool: Types.BOOL.value,
-    fields.Boolean: Types.BOOL.value,
-    fields.Constant: Types.STRING.value,
-    fields.DateTime: Types.DATE.value,
-    fields.Decimal: Types.NUMBER.value,
-    fields.Dict: Types.OBJECT.value,
-    fields.Email: Types.STRING.value,
-    fields.Field: Types.ANY.value,
-    fields.Float: Types.NUMBER.value,
-    fields.Function: Types.ANY.value,
-    fields.Int: Types.NUMBER.value,
-    fields.Integer: Types.NUMBER.value,
-    fields.Mapping: Types.ANY.value,
-    fields.Method: Types.ANY.value,
-    fields.Number: Types.NUMBER.value,
-    fields.Raw: Types.ANY.value,
-    fields.Str: Types.STRING.value,
-    fields.String: Types.STRING.value,
-    fields.TimeDelta: Types.ANY.value,
-    fields.Url: Types.STRING.value,
-    fields.UUID: Types.STRING.value,
+type_mappings: dict[PythonDatatypes, Mapping] = {
+    PythonDatatypes.BOOL: Types.BOOL.value,
+    PythonDatatypes.CONSTANT: Types.STRING.value,
+    PythonDatatypes.DATETIME: Types.DATE.value,
+    PythonDatatypes.DECIMAL: Types.NUMBER.value,
+    PythonDatatypes.DICT: Types.OBJECT.value,
+    PythonDatatypes.EMAIL: Types.STRING.value,
+    PythonDatatypes.FIELD: Types.ANY.value,
+    PythonDatatypes.FLOAT: Types.NUMBER.value,
+    PythonDatatypes.FUNCTION: Types.ANY.value,
+    PythonDatatypes.INT: Types.NUMBER.value,
+    PythonDatatypes.MAPPING: Types.ANY.value,
+    PythonDatatypes.METHOD: Types.ANY.value,
+    PythonDatatypes.NUMBER: Types.NUMBER.value,
+    PythonDatatypes.RAW: Types.ANY.value,
+    PythonDatatypes.STRING: Types.STRING.value,
+    PythonDatatypes.TIMEDELTA: Types.ANY.value,
+    PythonDatatypes.URL: Types.STRING.value,
+    PythonDatatypes.UUID: Types.STRING.value,
 }
 
 
 class Typescript(AbstractLanguage):
 
     @property
-    def type_mappings(self) -> Dict[fields.Field, Mapping]:
+    def type_mappings(self) -> Dict[PythonDatatypes, Mapping]:
         return type_mappings
 
     @staticmethod

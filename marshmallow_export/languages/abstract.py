@@ -8,6 +8,8 @@ from typing import Tuple, Dict, List, Set, Any
 
 from marshmallow_export.types import SchemaInfo, EnumInfo, Mapping
 
+from .python_mappings import marshmallow_mappings
+
 
 class AbstractLanguage(metaclass=ABCMeta):
 
@@ -248,10 +250,17 @@ class AbstractLanguage(metaclass=ABCMeta):
             export_type = ma_field.enum.__name__
 
         if export_type is None:
-            if ma_field.__class__ not in self.type_mappings:
+            python_datatype = None
+            if issubclass(ma_field.__class__, fields.Field):
+                if ma_field.__class__ not in marshmallow_mappings:
+                    raise NotImplementedError(f'{ma_field} not implemented for {self.__name__}')
+
+                python_datatype = marshmallow_mappings[ma_field.__class__]
+
+            if python_datatype not in self.type_mappings:
                 raise NotImplementedError(f'{ma_field} not implemented for {self.__name__}')
 
-            export_type = self.type_mappings[ma_field.__class__]
+            export_type = self.type_mappings[python_datatype]
 
         if isinstance(export_type, Mapping):
             export_type = export_type.mapping

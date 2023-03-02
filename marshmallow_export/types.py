@@ -2,6 +2,7 @@ import dataclasses
 from dataclasses import dataclass
 
 from marshmallow import Schema
+from rest_framework.serializers import ModelSerializer
 
 from typing import Optional, Union, List, Dict, Set, Any
 
@@ -19,8 +20,8 @@ class Mapping:
 
 @dataclass
 class SchemaInfo:
-    nests: Set[Schema] = dataclasses.field(default_factory=set)
-    nested_by: Set[Schema] = dataclasses.field(default_factory=set)
+    nests: Set[Schema | ModelSerializer] = dataclasses.field(default_factory=set)
+    nested_by: Set[Schema | ModelSerializer] = dataclasses.field(default_factory=set)
     ordering: int = 0
     kwargs: Dict[str, Any] = dataclasses.field(default_factory=dict)
 

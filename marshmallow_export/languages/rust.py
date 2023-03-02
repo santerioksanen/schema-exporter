@@ -7,6 +7,8 @@ from marshmallow_export.types import Mapping, EnumInfo, SchemaInfo
 
 from typing import Dict, Any, List
 
+from .python_mappings import PythonDatatypes
+
 DEFAULT_ENUM_DERIVES = [
     Mapping(mapping='Debug'),
     Mapping(mapping='Clone'),
@@ -36,35 +38,32 @@ class Types(Enum):
     UUID = Mapping(mapping='Uuid', imports={'uuid': ['Uuid']})
 
 
-type_mappings = {
-    fields.Bool: Types.BOOL.value,
-    fields.Boolean: Types.BOOL.value,
-    fields.Constant: Types.STRING.value,
-    fields.DateTime: Types.DATE_TIME_AWARE.value,
-    fields.Decimal: Types.DECIMAL.value,
-    fields.Dict: None,
-    fields.Email: Types.STRING.value,
-    fields.Field: None,
-    fields.Float: Types.FLOAT.value,
-    fields.Function: None,
-    fields.Int: Types.INTEGER.value,
-    fields.Integer: Types.INTEGER.value,
-    fields.Mapping: None,
-    fields.Method: None,
-    fields.Number: Types.FLOAT.value,
-    fields.Raw: None,
-    fields.Str: Types.STRING.value,
-    fields.String: Types.STRING.value,
-    fields.TimeDelta: None,
-    fields.Url: Types.STRING.value,
-    fields.UUID: Types.UUID.value,
+type_mappings: dict[PythonDatatypes, Mapping] = {
+    PythonDatatypes.BOOL: Types.BOOL.value,
+    PythonDatatypes.CONSTANT: Types.STRING.value,
+    PythonDatatypes.DATETIME: Types.DATE_TIME_AWARE.value,
+    PythonDatatypes.DECIMAL: Types.DECIMAL.value,
+    PythonDatatypes.DICT: None,
+    PythonDatatypes.EMAIL: Types.STRING.value,
+    PythonDatatypes.FIELD: None,
+    PythonDatatypes.FLOAT: Types.FLOAT.value,
+    PythonDatatypes.FUNCTION: None,
+    PythonDatatypes.INT: Types.INTEGER.value,
+    PythonDatatypes.MAPPING: None,
+    PythonDatatypes.METHOD: None,
+    PythonDatatypes.NUMBER: Types.FLOAT.value,
+    PythonDatatypes.RAW: None,
+    PythonDatatypes.STRING: Types.STRING.value,
+    PythonDatatypes.TIMEDELTA: None,
+    PythonDatatypes.URL: Types.STRING.value,
+    PythonDatatypes.UUID: Types.UUID.value,
 }
 
 
 class Rust(AbstractLanguage):
 
     @property
-    def type_mappings(self) -> Dict[fields.Field, Mapping]:
+    def type_mappings(self) -> Dict[PythonDatatypes, Mapping]:
         return type_mappings
 
     @staticmethod

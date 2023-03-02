@@ -1,3 +1,4 @@
+from rest_framework.serializers import ModelSerializer
 from marshmallow import Schema
 from enum import Enum, EnumMeta
 
@@ -28,7 +29,11 @@ _register_language(Typescript)
 _register_language(Rust)
 
 
-def _add_schema(namespaces: List[str], cls: Type[Schema], parsed_args: Dict[str, Any]) -> None:
+def _add_schema(
+        namespaces: List[str],
+        cls: Type[Schema | ModelSerializer],
+        parsed_args: Dict[str, Any]
+) -> None:
     for n in namespaces:
         if n not in __schemas:
             __schemas[n] = dict()
@@ -65,7 +70,7 @@ def export_schema(
     namespaces = namespace.split(',')
 
     def decorate(cls):
-        if issubclass(cls, Schema):
+        if issubclass(cls, Schema) or issubclass(cls, ModelSerializer):
             _add_schema(namespaces, cls, parsed_args)
 
         elif issubclass(cls, Enum):
