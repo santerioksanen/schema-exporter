@@ -108,7 +108,9 @@ def _get_export(
     ordered_output: bool,
 ) -> str:
     schemas = []
-    enums = []
+    enums = {}
+    if namespace in __enums:
+        enums = __enums[namespace]
 
     # Parse schemas
     if len(__schemas[namespace].keys()):
@@ -122,14 +124,14 @@ def _get_export(
             for schema, schema_info in __schemas[namespace].items():
                 parser.parse_and_add_schema(schema, schema_info.kwargs)
 
-        if namespace in __enums:
-            for en, en_info in __enums[namespace].items():
-                parser.add_enum(en, en_info.kwargs)
         if expand_nested:
             parser.parse_nested()
 
         schemas += list(parser.schemas.values())
-        enums += list(parser.enums.values())
+        enums.update(parser.enums)
+    
+    # Convert enums to list:
+    enums = list(enums.items())
 
     if ordered_output:
         _mark_nested_schemas(schemas)

@@ -15,7 +15,7 @@ class _MarshmallowParser:
         self.strip_schema_from_name = strip_schema_from_name
         self.schemas: dict[str, ParsedSchema] = dict()
         self.schema_nests: dict[str, set[str]] = dict()
-        self.enums: dict[str, tuple[Type[Enum], EnumInfo]] = dict()
+        self.enums: dict[Type[Enum], EnumInfo] = dict()
         self.schemas_to_parse: set[Schema] = set()
         self.default_info_kwargs = default_info_kwargs
 
@@ -97,8 +97,7 @@ class _MarshmallowParser:
         if info_kwargs is None:
             info_kwargs = self.default_info_kwargs
 
-        name = self._get_schema_export_name(en)
-        self.enums[name] = en, EnumInfo(kwargs=info_kwargs)
+        self.enums[en] = EnumInfo(kwargs=info_kwargs)
 
     def parse_nested(self):
         while len(self.schemas_to_parse):
