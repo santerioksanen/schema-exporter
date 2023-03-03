@@ -1,5 +1,5 @@
+from __future__ import annotations
 from rest_framework.serializers import ModelSerializer
-from marshmallow import Schema
 from enum import Enum, EnumMeta
 
 from pathlib import Path
@@ -7,10 +7,12 @@ from pathlib import Path
 from .types import EnumInfo, SchemaInfo
 from .languages import Rust, Typescript
 from .languages.abstract import AbstractLanguage
-from ._parsers import _MarshmallowParser
 from ._sorting import _mark_nested_schemas, _add_ordering_to_schemas
 
-from typing import Dict, Type, List, Any
+from typing import Dict, Type, List, Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from marshmallow import Schema
 
 
 __schemas = dict()
@@ -68,6 +70,8 @@ def export_schema(
         namespace: str = 'default',
         **kwargs
 ):
+    from marshmallow import Schema
+
     for kwarg in kwargs:
         if kwarg not in __kwargs_defaults:
             raise ValueError(f'Provided unknown keyword argument: {kwarg}')
@@ -87,8 +91,8 @@ def export_schema(
     def decorate(cls):
         if issubclass(cls, Schema):
             _add_schema(namespaces, cls, parsed_args)
-        elif issubclass(cls, ModelSerializer):
-            _add_serializer(namespaces, cls, parsed_args)
+        #elif issubclass(cls, ModelSerializer):
+        #    _add_serializer(namespaces, cls, parsed_args)
         elif issubclass(cls, Enum):
             _add_enum(namespaces, cls, parsed_args)
 
@@ -106,24 +110,28 @@ def _get_export(
         expand_nested: bool,
         ordered_output: bool,
 ) -> str:
+    schemas = []
+    enums = []
 
     # Parse schemas
-    parser = _MarshmallowParser(
-        default_info_kwargs=__kwargs_defaults,
-        strip_schema_from_name=strip_schema_keyword
-    )
-    if namespace in __schemas:
-        for schema, schema_info in __schemas[namespace].items():
-            parser.parse_and_add_schema(schema, schema_info.kwargs)
+    if len(__schemas[namespace].keys()):
+        from ._parsers._marshmallow_parser import _MarshmallowParser
+        parser = _MarshmallowParser(
+            default_info_kwargs=__kwargs_defaults,
+            strip_schema_from_name=strip_schema_keyword
+        )
+        if namespace in __schemas:
+            for schema, schema_info in __schemas[namespace].items():
+                parser.parse_and_add_schema(schema, schema_info.kwargs)
     
-    if namespace in __enums:
-        for en, en_info in __enums[namespace].items():
-            parser.add_enum(en, en_info.kwargs)
-    if expand_nested:
-        parser.parse_nested()
+        if namespace in __enums:
+            for en, en_info in __enums[namespace].items():
+                parser.add_enum(en, en_info.kwargs)
+        if expand_nested:
+            parser.parse_nested()
 
-    schemas = list(parser.schemas.values())
-    enums = list(parser.enums.values())
+        schemas += list(parser.schemas.values())
+        enums += list(parser.enums.values())
 
     if ordered_output:
         _mark_nested_schemas(schemas)

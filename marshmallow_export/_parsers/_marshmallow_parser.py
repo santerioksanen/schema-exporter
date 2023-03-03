@@ -2,8 +2,8 @@ from enum import Enum
 from typing import Type
 from marshmallow import fields, Schema
 from marshmallow_enum import EnumField
-from .types import ParsedSchema, ParsedField, EnumInfo
-from .languages.python_mappings import marshmallow_mappings
+from marshmallow_export.types import ParsedSchema, ParsedField, EnumInfo
+from marshmallow_export.languages.python_mappings import marshmallow_mappings
 
 
 class _MarshmallowParser:
