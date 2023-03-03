@@ -1,10 +1,8 @@
 import dataclasses
 import uuid
 from dataclasses import dataclass
-
 from enum import Enum, auto
-
-from typing import Optional, Union, List, Dict, Set, Any
+from typing import Any, Dict, List, Optional, Set, Union
 
 
 class PythonDatatypes(Enum):
@@ -31,18 +29,13 @@ class PythonDatatypes(Enum):
 @dataclass
 class Mapping:
     mapping: str
-    imports: Optional[
-        Union[
-            List[str],
-            Dict[str, List[str]]
-        ]
-    ] = None
+    imports: Optional[Union[List[str], Dict[str, List[str]]]] = None
 
 
 @dataclass
 class ParsedField:
-    python_datatype: PythonDatatypes | None # Set to none if a reference to other
-    export_name: str | None                 # Set name to reference
+    python_datatype: PythonDatatypes | None  # Set to none if a reference to other
+    export_name: str | None  # Set name to reference
     field_name: str
     required: bool = False
     allow_none: bool = False
@@ -55,8 +48,8 @@ class ParsedField:
 class ParsedSchema:
     name: str
     fields: list[ParsedField]
-    nests: Set['ParsedSchema'] = dataclasses.field(default_factory=set)
-    nested_by: Set['ParsedSchema'] = dataclasses.field(default_factory=set)
+    nests: Set["ParsedSchema"] = dataclasses.field(default_factory=set)
+    nested_by: Set["ParsedSchema"] = dataclasses.field(default_factory=set)
     ordering: int = 0
     kwargs: Dict[str, Any] = dataclasses.field(default_factory=dict)
     _uuid: uuid = uuid.uuid4()
@@ -67,9 +60,13 @@ class ParsedSchema:
 
 @dataclass
 class SchemaInfo:
-    nests: Set['ParsedSchema'] = dataclasses.field(default_factory=set)         # TODO: Remove me
-    nested_by: Set['ParsedSchema'] = dataclasses.field(default_factory=set)     # TODO: Remove me
-    ordering: int = 0                                                           # TODO: Remove me
+    nests: Set["ParsedSchema"] = dataclasses.field(
+        default_factory=set
+    )  # TODO: Remove me
+    nested_by: Set["ParsedSchema"] = dataclasses.field(
+        default_factory=set
+    )  # TODO: Remove me
+    ordering: int = 0  # TODO: Remove me
     kwargs: Dict[str, Any] = dataclasses.field(default_factory=dict)
 
 

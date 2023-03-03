@@ -1,15 +1,15 @@
 from __future__ import annotations
-from rest_framework.serializers import ModelSerializer
+
 from enum import Enum, EnumMeta
-
 from pathlib import Path
+from typing import TYPE_CHECKING, Any, Dict, List, Type
 
-from .types import EnumInfo, SchemaInfo
+from rest_framework.serializers import ModelSerializer
+
+from ._sorting import _add_ordering_to_schemas, _mark_nested_schemas
 from .languages import Rust, Typescript
 from .languages.abstract import AbstractLanguage
-from ._sorting import _mark_nested_schemas, _add_ordering_to_schemas
-
-from typing import Dict, Type, List, Any, TYPE_CHECKING
+from .types import EnumInfo, SchemaInfo
 
 if TYPE_CHECKING:
     from marshmallow import Schema
@@ -35,9 +35,7 @@ _register_language(Rust)
 
 
 def _add_schema(
-        namespaces: List[str],
-        cls: Type[Schema],
-        parsed_args: Dict[str, Any]
+    namespaces: List[str], cls: Type[Schema], parsed_args: Dict[str, Any]
 ) -> None:
     for n in namespaces:
         if n not in __schemas:
@@ -47,18 +45,18 @@ def _add_schema(
 
 
 def _add_serializer(
-        namespaces: List[str],
-        cls: Type[ModelSerializer],
-        parsed_args: Dict[str, Any]
+    namespaces: List[str], cls: Type[ModelSerializer], parsed_args: Dict[str, Any]
 ) -> None:
     for n in namespaces:
         if n not in __schemas:
             __schemas[n] = dict()
-        
+
         __serializers[n][cls] = SchemaInfo(kwargs=parsed_args)
 
 
-def _add_enum(namespaces: List[str], cls: EnumMeta, parsed_args: Dict[str, Any]) -> None:
+def _add_enum(
+    namespaces: List[str], cls: EnumMeta, parsed_args: Dict[str, Any]
+) -> None:
     for n in namespaces:
         if n not in __enums:
             __enums[n] = dict()
@@ -66,15 +64,12 @@ def _add_enum(namespaces: List[str], cls: EnumMeta, parsed_args: Dict[str, Any])
         __enums[n][cls] = EnumInfo(kwargs=parsed_args)
 
 
-def export_schema(
-        namespace: str = 'default',
-        **kwargs
-):
+def export_schema(namespace: str = "default", **kwargs):
     from marshmallow import Schema
 
     for kwarg in kwargs:
         if kwarg not in __kwargs_defaults:
-            raise ValueError(f'Provided unknown keyword argument: {kwarg}')
+            raise ValueError(f"Provided unknown keyword argument: {kwarg}")
 
     parsed_args = dict()
     for key, value in __kwargs_defaults.items():
@@ -84,14 +79,16 @@ def export_schema(
         parsed_args[key] = value
 
     if not isinstance(namespace, str):
-        raise ValueError('Namespace should be a string containing one or more comma separated values')
+        raise ValueError(
+            "Namespace should be a string containing one or more comma separated values"
+        )
 
-    namespaces = namespace.split(',')
+    namespaces = namespace.split(",")
 
     def decorate(cls):
         if issubclass(cls, Schema):
             _add_schema(namespaces, cls, parsed_args)
-        #elif issubclass(cls, ModelSerializer):
+        # elif issubclass(cls, ModelSerializer):
         #    _add_serializer(namespaces, cls, parsed_args)
         elif issubclass(cls, Enum):
             _add_enum(namespaces, cls, parsed_args)
@@ -102,13 +99,13 @@ def export_schema(
 
 
 def _get_export(
-        language: str,
-        namespace: str,
-        include_dump_only: bool,
-        include_load_only: bool,
-        strip_schema_keyword: bool,
-        expand_nested: bool,
-        ordered_output: bool,
+    language: str,
+    namespace: str,
+    include_dump_only: bool,
+    include_load_only: bool,
+    strip_schema_keyword: bool,
+    expand_nested: bool,
+    ordered_output: bool,
 ) -> str:
     schemas = []
     enums = []
@@ -116,14 +113,15 @@ def _get_export(
     # Parse schemas
     if len(__schemas[namespace].keys()):
         from ._parsers._marshmallow_parser import _MarshmallowParser
+
         parser = _MarshmallowParser(
             default_info_kwargs=__kwargs_defaults,
-            strip_schema_from_name=strip_schema_keyword
+            strip_schema_from_name=strip_schema_keyword,
         )
         if namespace in __schemas:
             for schema, schema_info in __schemas[namespace].items():
                 parser.parse_and_add_schema(schema, schema_info.kwargs)
-    
+
         if namespace in __enums:
             for en, en_info in __enums[namespace].items():
                 parser.add_enum(en, en_info.kwargs)
@@ -139,29 +137,25 @@ def _get_export(
         schemas.sort(key=lambda e: e.name.lower())
         schemas.sort(key=lambda e: e.ordering)
         enums.sort(key=lambda e: e[0].__name__.lower())
-    
+
     lng_class = __languages[language]
-    exporter = lng_class(
-        schemas=schemas,
-        enums=enums
-    )
+    exporter = lng_class(schemas=schemas, enums=enums)
 
     # Export schemas
     return exporter.export(
-        include_dump_only=include_dump_only,
-        include_load_only=include_load_only
+        include_dump_only=include_dump_only, include_load_only=include_load_only
     )
 
 
 def export_mappings(
-        export_to: Path,
-        language: str,
-        namespace: str = 'default',
-        include_dump_only: bool = True,
-        include_load_only: bool = True,
-        strip_schema_keyword: bool = True,
-        expand_nested: bool = True,
-        ordered_output: bool = True,
+    export_to: Path,
+    language: str,
+    namespace: str = "default",
+    include_dump_only: bool = True,
+    include_load_only: bool = True,
+    strip_schema_keyword: bool = True,
+    expand_nested: bool = True,
+    ordered_output: bool = True,
 ):
     if language not in __languages:
         raise NotImplementedError(
@@ -169,17 +163,15 @@ def export_mappings(
         )
 
     if not isinstance(namespace, str):
-        raise ValueError(
-            f'namespace must be of type str, {type(namespace)} provided'
-        )
+        raise ValueError(f"namespace must be of type str, {type(namespace)} provided")
 
     if not isinstance(export_to, Path):
         raise ValueError(
-            f'export_to must be a Path instance, {type(export_to)} provided'
+            f"export_to must be a Path instance, {type(export_to)} provided"
         )
 
     if not isinstance(export_to, Path):
-        raise ValueError(f'Export to should be string or path, was: {type(export_to)}')
+        raise ValueError(f"Export to should be string or path, was: {type(export_to)}")
 
     exp = _get_export(
         language=language,
@@ -188,8 +180,8 @@ def export_mappings(
         include_load_only=include_load_only,
         strip_schema_keyword=strip_schema_keyword,
         expand_nested=expand_nested,
-        ordered_output=ordered_output
+        ordered_output=ordered_output,
     )
 
-    with open(export_to, 'w') as f:
+    with open(export_to, "w") as f:
         f.write(exp)

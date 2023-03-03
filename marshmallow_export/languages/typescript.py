@@ -1,20 +1,26 @@
 from enum import Enum, EnumMeta
+from typing import Any, Dict, List
 
 from marshmallow import Schema, fields
 
-from .abstract import AbstractLanguage
-from marshmallow_export.types import Mapping, EnumInfo, ParsedSchema, PythonDatatypes, ParsedField
+from marshmallow_export.types import (
+    EnumInfo,
+    Mapping,
+    ParsedField,
+    ParsedSchema,
+    PythonDatatypes,
+)
 
-from typing import List, Dict, Any
+from .abstract import AbstractLanguage
 
 
 class Types(Enum):
-    BOOL = Mapping(mapping='boolean')
-    NUMBER = Mapping(mapping='number')
-    STRING = Mapping(mapping='string')
-    DATE = Mapping(mapping='Date')
-    OBJECT = Mapping(mapping='object')
-    ANY = Mapping(mapping='any')
+    BOOL = Mapping(mapping="boolean")
+    NUMBER = Mapping(mapping="number")
+    STRING = Mapping(mapping="string")
+    DATE = Mapping(mapping="Date")
+    OBJECT = Mapping(mapping="object")
+    ANY = Mapping(mapping="any")
 
 
 type_mappings: dict[PythonDatatypes, Mapping] = {
@@ -40,7 +46,6 @@ type_mappings: dict[PythonDatatypes, Mapping] = {
 
 
 class Typescript(AbstractLanguage):
-
     @property
     def type_mappings(self) -> Dict[PythonDatatypes, Mapping]:
         return type_mappings
@@ -55,45 +60,37 @@ class Typescript(AbstractLanguage):
         if not isinstance(value, int):
             value = f'"{value}"'
 
-        return f'  {field_name} = {value},'
+        return f"  {field_name} = {value},"
 
     @staticmethod
     def _format_enum(e: EnumMeta, enum_fields: List[str], enum_info: EnumInfo) -> str:
-        enum_fields = '\n'.join(enum_fields)
-        return f'export enum {e.__name__} {{\n{enum_fields}\n}}\n'
+        enum_fields = "\n".join(enum_fields)
+        return f"export enum {e.__name__} {{\n{enum_fields}\n}}\n"
 
-    def format_header(
-            self,
-            include_dump_only: bool,
-            include_load_only: bool
-    ) -> str:
-        return ''
+    def format_header(self, include_dump_only: bool, include_load_only: bool) -> str:
+        return ""
 
     def _format_schema_field(
-            self,
-            field: ParsedField,
+        self,
+        field: ParsedField,
     ) -> str:
         export_type = self.map_schema_field(field)
         field_name = field.field_name
-        
+
         if isinstance(export_type, Mapping):
             export_type = export_type.mapping
 
         if field.many:
-            export_type += '[]'
+            export_type += "[]"
 
         if field.allow_none:
-            export_type += ' | null'
+            export_type += " | null"
 
         if not field.required:
-            field_name += '?'
+            field_name += "?"
 
-        return f'  {field_name}: {export_type};'
+        return f"  {field_name}: {export_type};"
 
-    def _format_schema(
-            self,
-            schema: ParsedSchema,
-            schema_fields: List[str]
-    ) -> str:
-        schema_fields = '\n'.join(schema_fields)
-        return f'export interface {schema.name} {{\n{schema_fields}\n}}\n'
+    def _format_schema(self, schema: ParsedSchema, schema_fields: List[str]) -> str:
+        schema_fields = "\n".join(schema_fields)
+        return f"export interface {schema.name} {{\n{schema_fields}\n}}\n"

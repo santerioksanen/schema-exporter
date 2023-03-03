@@ -1,8 +1,8 @@
 from typing import Type
+
 from marshmallow import fields
 
 from marshmallow_export.types import PythonDatatypes
-
 
 marshmallow_mappings: dict[Type[fields.Field], PythonDatatypes] = {
     fields.Bool: PythonDatatypes.BOOL,
