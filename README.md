@@ -163,9 +163,9 @@ Also the `export_mappings` function takes optional parameters:
 ```concole
 $ python3 -m venv env
 $ source env/bin/activate
-$ pip install -e .
+$ pip install -e .[dev]
 ```
-* Test using unittest:
+* Test using test.py:
 ```console
-$ python -m unittest
+$ python test.py
 ```

@@ -1,0 +1,28 @@
+[project]
+name = "marshmallow_export"
+version = "0.2.0"
+authors = [
+    { name="Santeri Oksanen", email="santerioksanen@gmail.com" }
+]
+description = "Export Marshamallow schemas and Django rest framework serializers as Typescripr interfaces or Rust structs."
+readme = "README.md"
+requires-python = ">=3.8"
+
+[project.urls]
+"Homepage" = "https://github.com/santerioksanen/marshmallow-export"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project.optional-dependencies]
+dev = [
+    "Django==4.1.7",
+    "djangorestframework==3.14.0",
+    "marshmallow==3.19.0",
+    "marshmallow-enum==1.5.1",
+    "isort",
+    "black",
+    "build",
+    "twine",
+]
