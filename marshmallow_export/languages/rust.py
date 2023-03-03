@@ -1,8 +1,6 @@
 from enum import Enum
 from typing import Any, Dict, List, Type
 
-from marshmallow import Schema
-
 from marshmallow_export.types import (
     EnumInfo,
     Mapping,

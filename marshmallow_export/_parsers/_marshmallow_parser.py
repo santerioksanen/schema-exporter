@@ -4,7 +4,7 @@ from typing import Type
 from marshmallow import Schema, fields
 from marshmallow_enum import EnumField
 
-from marshmallow_export.languages.python_mappings import marshmallow_mappings
+from marshmallow_export._parsers._marshmallow_mappings import marshmallow_mappings
 from marshmallow_export.types import EnumInfo, ParsedField, ParsedSchema
 
 

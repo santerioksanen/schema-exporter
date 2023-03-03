@@ -2,9 +2,6 @@ from abc import ABCMeta, abstractmethod
 from enum import Enum
 from typing import Any, Dict, List, Type
 
-from marshmallow import Schema, fields
-from marshmallow_enum import EnumField
-
 from marshmallow_export.types import (
     EnumInfo,
     Mapping,
@@ -12,8 +9,6 @@ from marshmallow_export.types import (
     ParsedSchema,
     PythonDatatypes,
 )
-
-from .python_mappings import marshmallow_mappings
 
 
 class AbstractLanguage(metaclass=ABCMeta):
