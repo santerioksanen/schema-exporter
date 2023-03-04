@@ -9,7 +9,7 @@ from marshmallow_export.types import (
     PythonDatatypes,
 )
 
-from .abstract import AbstractLanguage
+from .base_language import BaseLanguage
 
 DEFAULT_ENUM_DERIVES = [
     Mapping(mapping="Debug"),
@@ -55,8 +55,6 @@ type_mappings: dict[PythonDatatypes, Mapping] = {
     PythonDatatypes.INT: Types.INTEGER.value,
     PythonDatatypes.MAPPING: None,
     PythonDatatypes.METHOD: None,
-    PythonDatatypes.NUMBER: Types.FLOAT.value,
-    PythonDatatypes.RAW: None,
     PythonDatatypes.STRING: Types.STRING.value,
     PythonDatatypes.TIMEDELTA: None,
     PythonDatatypes.URL: Types.STRING.value,
@@ -64,7 +62,7 @@ type_mappings: dict[PythonDatatypes, Mapping] = {
 }
 
 
-class Rust(AbstractLanguage):
+class Rust(BaseLanguage):
     @property
     def type_mappings(self) -> Dict[PythonDatatypes, Mapping]:
         return type_mappings

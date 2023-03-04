@@ -1,10 +1,11 @@
-from enum import Enum
 from typing import Type
 
 from marshmallow import Schema, fields
 
 from marshmallow_export.parsers.marshmallow_mappings import marshmallow_mappings
-from marshmallow_export.types import EnumInfo, ParsedField, ParsedSchema
+from marshmallow_export.types import ParsedField, ParsedSchema
+
+from .base_parser import BaseParser
 
 class_enum_field = None
 class_marshamallow_enum_field = None
@@ -22,17 +23,7 @@ except ImportError:
     pass
 
 
-class MarshmallowParser:
-    def __init__(
-        self, default_info_kwargs: dict[str, any], strip_schema_from_name: bool = True
-    ):
-        self.strip_schema_from_name = strip_schema_from_name
-        self.schemas: dict[str, ParsedSchema] = dict()
-        self.schema_nests: dict[ParsedSchema, set[str]] = dict()
-        self.enums: dict[Type[Enum], EnumInfo] = dict()
-        self.schemas_to_parse: set[Schema] = set()
-        self.default_info_kwargs = default_info_kwargs
-
+class MarshmallowParser(BaseParser[Schema, fields.Field]):
     def _get_schema_export_name(
         self,
         schema: Type[Schema],
@@ -111,19 +102,3 @@ class MarshmallowParser:
         parsed_schema = ParsedSchema(name=name, fields=fields, kwargs=schema_kwargs)
         self.schema_nests[parsed_schema] = nested_schemas
         self.schemas[name] = parsed_schema
-
-    def add_enum(self, en: Type[Enum], info_kwargs: dict[str, any] = None) -> None:
-        if info_kwargs is None:
-            info_kwargs = self.default_info_kwargs
-
-        self.enums[en] = EnumInfo(kwargs=info_kwargs)
-
-    def parse_nested(self):
-        while len(self.schemas_to_parse):
-            schema = self.schemas_to_parse.pop()
-            self.parse_and_add_schema(schema)
-
-        # Add nests to parsed schema details
-        for parsed_schema, nested_schema_names in self.schema_nests.items():
-            for nested_schema_name in nested_schema_names:
-                parsed_schema.nests.add(self.schemas[nested_schema_name])

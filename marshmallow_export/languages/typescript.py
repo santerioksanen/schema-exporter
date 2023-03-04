@@ -9,7 +9,7 @@ from marshmallow_export.types import (
     PythonDatatypes,
 )
 
-from .abstract import AbstractLanguage
+from .base_language import BaseLanguage
 
 
 class Types(Enum):
@@ -34,8 +34,6 @@ type_mappings: dict[PythonDatatypes, Mapping] = {
     PythonDatatypes.INT: Types.NUMBER.value,
     PythonDatatypes.MAPPING: Types.ANY.value,
     PythonDatatypes.METHOD: Types.ANY.value,
-    PythonDatatypes.NUMBER: Types.NUMBER.value,
-    PythonDatatypes.RAW: Types.ANY.value,
     PythonDatatypes.STRING: Types.STRING.value,
     PythonDatatypes.TIMEDELTA: Types.ANY.value,
     PythonDatatypes.URL: Types.STRING.value,
@@ -43,7 +41,7 @@ type_mappings: dict[PythonDatatypes, Mapping] = {
 }
 
 
-class Typescript(AbstractLanguage):
+class Typescript(BaseLanguage):
     @property
     def type_mappings(self) -> Dict[PythonDatatypes, Mapping]:
         return type_mappings
@@ -87,7 +85,7 @@ class Typescript(AbstractLanguage):
 
         if not field.required:
             field_name += "?"
-        
+
         if field.dump_only:
             readonly = "readonly "
 

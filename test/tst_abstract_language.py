@@ -5,7 +5,7 @@ from typing import Any, Dict, List
 from marshmallow import Schema, fields
 from marshmallow_enum import EnumField
 
-from marshmallow_export.languages.abstract import AbstractLanguage
+from marshmallow_export.languages.base_language import BaseLanguage
 from marshmallow_export.types import EnumInfo, SchemaInfo
 
 
@@ -45,7 +45,7 @@ class ListEnumSchema(Schema):
     bar = fields.List(EnumField(BarEnum))
 
 
-class TestLanguage(AbstractLanguage):
+class TestLanguage(BaseLanguage):
     @property
     def type_mappings(self) -> Dict[fields.Field, Enum]:
         pass

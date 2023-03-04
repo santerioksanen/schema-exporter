@@ -6,19 +6,11 @@ from rest_framework import serializers
 from marshmallow_export.parsers.drf_mappings import drf_mappings
 from marshmallow_export.types import EnumInfo, ParsedField, ParsedSchema
 
+from .base_parser import BaseParser
 
-class DRFParser:
-    def __init__(
-        self, default_info_kwargs: dict[str, any], strip_schema_from_name: bool = True
-    ):
-        self.strip_schema_from_name = strip_schema_from_name
-        self.schemas: dict[str, ParsedSchema] = dict()
-        self.serializer_nests: dict[ParsedSchema, set[str]] = dict()
-        self.enums: dict[Type[Enum], EnumInfo] = dict()
-        self.serializers_to_parse: set[Type[serializers.Serializer]] = set()
-        self.default_info_kwargs = default_info_kwargs
 
-    def _get_serializer_export_name(
+class DRFParser(BaseParser[serializers.Serializer, serializers.Field]):
+    def _get_schema_export_name(
         self,
         serializer: Type[serializers.Serializer],
     ):
@@ -42,8 +34,8 @@ class DRFParser:
             many = True
 
         if issubclass(drf_field, serializers.Serializer):
-            self.serializers_to_parse.add(drf_field)
-            export_name = self._get_serializer_export_name(drf_field)
+            self.schemas_to_parse.add(drf_field)
+            export_name = self._get_schema_export_name(drf_field)
             nested_serializers.add(export_name)
 
         # TODO: Add parsers for choice field, enum fields
@@ -68,15 +60,13 @@ class DRFParser:
             nested_serializers,
         )
 
-    def parse_and_add_serializer(
-        self, 
-        serializer: serializers.Serializer,
-        schema_kwargs: dict[str, any] = None
+    def parse_and_add_schema(
+        self, serializer: serializers.Serializer, schema_kwargs: dict[str, any] = None
     ) -> None:
         if schema_kwargs is None:
             schema_kwargs = self.default_info_kwargs
 
-        name = self._get_serializer_export_name(serializer)
+        name = self._get_schema_export_name(serializer)
         if name in self.schemas:
             return
 
@@ -88,21 +78,5 @@ class DRFParser:
             fields.append(parsed_field)
 
         parsed_schema = ParsedSchema(name=name, fields=fields, kwargs=schema_kwargs)
-        self.serializer_nests[parsed_schema] = nested_schemas
+        self.schema_nests[parsed_schema] = nested_schemas
         self.schemas[name] = parsed_schema
-
-    def add_enum(self, en: Type[Enum], info_kwargs: dict[str, any] = None) -> None:
-        if info_kwargs is None:
-            info_kwargs = self.default_info_kwargs
-
-        self.enums[en] = EnumInfo(kwargs=info_kwargs)
-
-    def parse_nested(self):
-        while len(self.serializers_to_parse):
-            serializer = self.serializers_to_parse.pop()
-            self.parse_and_add_serializer(serializer)
-
-        # Add nests to parsed schema details
-        for parsed_schema, nested_schema_names in self.serializer_nests.items():
-            for nested_schema_name in nested_schema_names:
-                parsed_schema.nests.add(self.schemas[nested_schema_name])

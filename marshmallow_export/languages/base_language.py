@@ -11,7 +11,7 @@ from marshmallow_export.types import (
 )
 
 
-class AbstractLanguage(metaclass=ABCMeta):
+class BaseLanguage(metaclass=ABCMeta):
     def __init__(
         self,
         schemas: list[ParsedSchema],
