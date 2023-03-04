@@ -4,8 +4,6 @@ from enum import Enum, EnumMeta
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Type
 
-from rest_framework.serializers import ModelSerializer
-
 from .sorting import add_ordering_to_schemas, mark_nested_schemas
 from .languages import Rust, Typescript
 from .languages.abstract import AbstractLanguage
@@ -13,6 +11,7 @@ from .types import EnumInfo, SchemaInfo
 
 if TYPE_CHECKING:
     from marshmallow import Schema
+    from rest_framework.serializers import Serializer
 
 
 __schemas = dict()
@@ -45,7 +44,7 @@ def _add_schema(
 
 
 def _add_serializer(
-    namespaces: List[str], cls: Type[ModelSerializer], parsed_args: Dict[str, Any]
+    namespaces: List[str], cls: Type[Serializer], parsed_args: Dict[str, Any]
 ) -> None:
     for n in namespaces:
         if n not in __schemas:
@@ -101,8 +100,12 @@ def export_schema(namespace: str = "default", **kwargs):
     namespaces = _validate_and_split_namespace(namespace)
 
     def decorate(cls):
-        if issubclass(cls, Schema):
-            _add_schema(namespaces, cls, parsed_args)
+        if not issubclass(cls, Schema):
+            raise ValueError(
+                f"Trying to export schema of type: {type(cls)}, which is not supported"
+            )
+
+        _add_schema(namespaces, cls, parsed_args)
 
         return cls
 
@@ -129,6 +132,30 @@ def export_enum(namespce: str = "default", **kwargs):
     return decorate
 
 
+def export_serializer(namespace: str = "default", **kwargs):
+    """A simple wrapper to register a DRF serializer to be exported.
+    With default export configurations the export functions adds
+    all nested serializers to the export as well.
+
+    Supports providing namespaces, which may be used during export
+    phase to limit number of types exported.
+    """
+    from rest_framework.serializers import Serializer
+
+    parsed_args = _parse_kwargs(kwargs)
+    namespaces = _validate_and_split_namespace(namespace)
+
+    def decorate(cls):
+        if not issubclass(cls, Serializer):
+            raise ValueError(
+                f"Trying to export serializer of type: {type(cls)}, which is not supported"
+            )
+
+        _add_serializer(namespaces, cls, parsed_args)
+
+    return decorate
+
+
 def _get_export(
     language: str,
     namespace: str,
@@ -144,7 +171,7 @@ def _get_export(
         enums = __enums[namespace]
 
     # Parse schemas
-    if len(__schemas[namespace].keys()):
+    if namespace in __schemas and len(__schemas[namespace].keys()):
         from .parsers.marshmallow_parser import MarshmallowParser
 
         parser = MarshmallowParser(
@@ -158,6 +185,24 @@ def _get_export(
         if expand_nested:
             parser.parse_nested()
 
+        schemas += list(parser.schemas.values())
+        enums.update(parser.enums)
+    
+    # Parse serializers
+    if namespace in __serializers and len(__serializers[namespace].keys()):
+        from .parsers.drf_parser import DRFParser
+
+        parser = DRFParser(
+            default_info_kwargs=__kwargs_defaults,
+            strip_schema_from_name=strip_schema_keyword,
+        )
+        if namespace in __serializers:
+            for serializer, schema_info in __schemas[namespace].items():
+                parser.parse_and_add_serializer(serializer, schema_info.kwargs)
+        
+        if expand_nested:
+            parser.parse_nested()
+        
         schemas += list(parser.schemas.values())
         enums.update(parser.enums)
 

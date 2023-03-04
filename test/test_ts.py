@@ -21,7 +21,7 @@ TEST_ENUM_AUTO_TS = """export enum TestEnumAuto {
 
 TEST_SCHEMA_TS = """export interface Test {
   load_only?: number;
-  dump_only?: number;
+  readonly dump_only?: number;
   required: number;
   allow_none?: number | null;
   required_allow_none: number | null;
@@ -34,7 +34,7 @@ TEST_SCHEMA_TS = """export interface Test {
 """
 
 TEST_SCHEMA_TS_NOT_LOAD_ONLY = """export interface Test {
-  dump_only?: number;
+  readonly dump_only?: number;
   required: number;
   allow_none?: number | null;
   required_allow_none: number | null;

@@ -3,8 +3,6 @@ from typing import Type
 
 from marshmallow import Schema, fields
 
-# from marshmallow_enum import EnumField
-
 from marshmallow_export.parsers.marshmallow_mappings import marshmallow_mappings
 from marshmallow_export.types import EnumInfo, ParsedField, ParsedSchema
 
@@ -30,7 +28,7 @@ class MarshmallowParser:
     ):
         self.strip_schema_from_name = strip_schema_from_name
         self.schemas: dict[str, ParsedSchema] = dict()
-        self.schema_nests: dict[str, set[str]] = dict()
+        self.schema_nests: dict[ParsedSchema, set[str]] = dict()
         self.enums: dict[Type[Enum], EnumInfo] = dict()
         self.schemas_to_parse: set[Schema] = set()
         self.default_info_kwargs = default_info_kwargs

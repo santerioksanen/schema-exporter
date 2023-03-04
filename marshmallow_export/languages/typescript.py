@@ -74,6 +74,7 @@ class Typescript(AbstractLanguage):
     ) -> str:
         export_type = self.map_schema_field(field)
         field_name = field.field_name
+        readonly = ""
 
         if isinstance(export_type, Mapping):
             export_type = export_type.mapping
@@ -86,8 +87,11 @@ class Typescript(AbstractLanguage):
 
         if not field.required:
             field_name += "?"
+        
+        if field.dump_only:
+            readonly = "readonly "
 
-        return f"  {field_name}: {export_type};"
+        return f"  {readonly}{field_name}: {export_type};"
 
     def _format_schema(self, schema: ParsedSchema, schema_fields: List[str]) -> str:
         schema_fields = "\n".join(schema_fields)
