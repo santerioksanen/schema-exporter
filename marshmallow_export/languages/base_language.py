@@ -76,7 +76,7 @@ class BaseLanguage(metaclass=ABCMeta):
             if not include_load_only and field.load_only:
                 continue
 
-            schema_fields.append(self._format_schema_field(field))
+            schema_fields.append(field)
 
         return self._format_schema(schema, schema_fields)
 

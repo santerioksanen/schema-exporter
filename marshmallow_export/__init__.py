@@ -5,9 +5,9 @@ from enum import Enum, EnumMeta
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Type
 
-from .sorting import add_ordering_to_schemas, mark_nested_schemas
 from .languages import Rust, Typescript
 from .languages.base_language import BaseLanguage
+from .sorting import add_ordering_to_schemas, mark_nested_schemas
 from .types import EnumInfo, SchemaInfo
 
 if TYPE_CHECKING:

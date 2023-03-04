@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Type, TypeVar, Generic
+from typing import Generic, Type, TypeVar
 
 from marshmallow_export.types import EnumInfo, ParsedField, ParsedSchema
 

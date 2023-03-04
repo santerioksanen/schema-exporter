@@ -1,11 +1,12 @@
 import unittest
 from enum import Enum
-from marshmallow_export.parsers.marshmallow_parser import MarshmallowParser
-from marshmallow_export.parsers.marshmallow_mappings import marshmallow_mappings
-from marshmallow_export.types import SchemaInfo, ParsedField, PythonDatatypes
 
 from marshmallow import Schema, fields
 from marshmallow_enum import EnumField
+
+from marshmallow_export.parsers.marshmallow_mappings import marshmallow_mappings
+from marshmallow_export.parsers.marshmallow_parser import MarshmallowParser
+from marshmallow_export.types import ParsedField, PythonDatatypes, SchemaInfo
 
 NOT_DEFINED = "NOT_DEFINED"
 

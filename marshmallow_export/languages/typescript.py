@@ -91,6 +91,10 @@ class Typescript(BaseLanguage):
 
         return f"  {readonly}{field_name}: {export_type};"
 
-    def _format_schema(self, schema: ParsedSchema, schema_fields: List[str]) -> str:
-        schema_fields = "\n".join(schema_fields)
+    def _format_schema(
+        self, schema: ParsedSchema, schema_fields: List[ParsedField]
+    ) -> str:
+        schema_fields = "\n".join(
+            [self._format_schema_field(fld) for fld in schema_fields]
+        )
         return f"export interface {schema.name} {{\n{schema_fields}\n}}\n"

@@ -7,7 +7,6 @@ from rest_framework import serializers
 
 from marshmallow_export import export_mappings, export_serializer
 
-
 # class TestEnum1(Enum):
 #    A = "a"
 #    B = "b"
