@@ -52,8 +52,8 @@ class RootSchema2(Schema):
     nested_leaf_1 = fields.Nested(LeafSchema2, required=True)
 
 
-p = Path().cwd() / "test_schema_1.ts.export"
+p = Path().cwd() / "test_marshmallow_1.ts.export"
 
 export_mappings(p, "typescript")
-p = Path().cwd() / "test_schema_1.rs.export"
+p = Path().cwd() / "test_marshmallow_1.rs.export"
 export_mappings(p, "rust")

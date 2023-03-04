@@ -45,7 +45,7 @@ def _add_serializer(
     namespaces: List[str], cls: Type[Serializer], parsed_args: Dict[str, Any]
 ) -> None:
     for n in namespaces:
-        __serializers[n][cls] = SchemaInfo(kwargs=parsed_args)
+        __serializers[n][cls()] = SchemaInfo(kwargs=parsed_args)
 
 
 def _add_enum(
@@ -189,8 +189,8 @@ def _get_export(
             strip_schema_from_name=strip_schema_keyword,
         )
         if namespace in __serializers:
-            for serializer, schema_info in __schemas[namespace].items():
-                parser.parse_and_add_serializer(serializer, schema_info.kwargs)
+            for serializer, schema_info in __serializers[namespace].items():
+                parser.parse_and_add_schema(serializer, schema_info.kwargs)
 
         if expand_nested:
             parser.parse_nested()

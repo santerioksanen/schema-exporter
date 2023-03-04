@@ -25,5 +25,5 @@ drf_mappings: dict[Type[serializers.Field], PythonDatatypes] = {
     serializers.ImageField: PythonDatatypes.UNDEFINED,
     serializers.DictField: PythonDatatypes.DICT,
     serializers.HStoreField: PythonDatatypes.UNDEFINED,
-    serializers.JSONField: PythonDatatypes.JSON,
+    serializers.JSONField: PythonDatatypes.JSON_FIELD,
 }

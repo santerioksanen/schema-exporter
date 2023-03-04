@@ -14,7 +14,7 @@ class DRFParser(BaseParser[serializers.Serializer, serializers.Field]):
         self,
         serializer: Type[serializers.Serializer],
     ):
-        name = serializer.__name__
+        name = serializer.__class__.__name__
         if self.strip_schema_from_name:
             name = name.replace("Serializer", "")
 
@@ -29,11 +29,13 @@ class DRFParser(BaseParser[serializers.Serializer, serializers.Field]):
         export_name = None
         nested_serializers = set()
 
-        if isinstance(drf_field, serializers.ListField):
+        if issubclass(drf_field.__class__, serializers.ListSerializer) or isinstance(
+            drf_field, serializers.ListField
+        ):
             drf_field = drf_field.child
             many = True
 
-        if issubclass(drf_field, serializers.Serializer):
+        if issubclass(drf_field.__class__, serializers.Serializer):
             self.schemas_to_parse.add(drf_field)
             export_name = self._get_schema_export_name(drf_field)
             nested_serializers.add(export_name)

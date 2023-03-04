@@ -5,14 +5,12 @@ from unittest import TestCase
 
 
 class FixtureTestCases(TestCase):
-    def test_fixtures(self):
+    def assert_fixture(self, fname) -> None:
         old_wd = os.getcwd()
 
         fixtures_path = Path(__name__).absolute().parent / "test/fixtures/"
 
         os.chdir(fixtures_path)
-
-        fname = "test_schema_1"
 
         subprocess.run(f"python {fname}.py", shell=True, check=True)
 
@@ -39,3 +37,9 @@ class FixtureTestCases(TestCase):
         # Delete generated file
         os.remove(fixtures_path / f"{fname}.ts.export")
         os.remove(fixtures_path / f"{fname}.rs.export")
+
+    def test_marshmallow_1(self) -> None:
+        self.assert_fixture("test_marshmallow_1")
+
+    def test_drf_1(self) -> None:
+        self.assert_fixture("test_drf_1")
