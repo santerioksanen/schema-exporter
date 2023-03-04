@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Type
 
 from rest_framework.serializers import ModelSerializer
 
-from ._sorting import _add_ordering_to_schemas, _mark_nested_schemas
+from .sorting import add_ordering_to_schemas, mark_nested_schemas
 from .languages import Rust, Typescript
 from .languages.abstract import AbstractLanguage
 from .types import EnumInfo, SchemaInfo
@@ -64,9 +64,7 @@ def _add_enum(
         __enums[n][cls] = EnumInfo(kwargs=parsed_args)
 
 
-def export_schema(namespace: str = "default", **kwargs):
-    from marshmallow import Schema
-
+def _parse_kwargs(kwargs: dict) -> dict:
     for kwarg in kwargs:
         if kwarg not in __kwargs_defaults:
             raise ValueError(f"Provided unknown keyword argument: {kwarg}")
@@ -78,21 +76,54 @@ def export_schema(namespace: str = "default", **kwargs):
     for key, value in kwargs:
         parsed_args[key] = value
 
+    return parsed_args
+
+
+def _validate_and_split_namespace(namespace: str) -> list[str]:
     if not isinstance(namespace, str):
         raise ValueError(
             "Namespace should be a string containing one or more comma separated values"
         )
+    return namespace.split(",")
 
-    namespaces = namespace.split(",")
+
+def export_schema(namespace: str = "default", **kwargs):
+    """A simple wrapper to register a Marshmallow schema to be exported.
+    With default export configurations the export functions adds
+    all nested schemas to the export as well.
+
+    Supports providing namespaces, which may be used during export
+    phase to limit number of types exported.
+    """
+    from marshmallow import Schema
+
+    parsed_args = _parse_kwargs(kwargs)
+    namespaces = _validate_and_split_namespace(namespace)
 
     def decorate(cls):
         if issubclass(cls, Schema):
             _add_schema(namespaces, cls, parsed_args)
-        # elif issubclass(cls, ModelSerializer):
-        #    _add_serializer(namespaces, cls, parsed_args)
-        elif issubclass(cls, Enum):
-            _add_enum(namespaces, cls, parsed_args)
 
+        return cls
+
+    return decorate
+
+
+def export_enum(namespce: str = "default", **kwargs):
+    """A simple wrapper to register an Enum to be exported.
+
+    Supports providing namespaces, which may be used during export
+    phase to limit number of types exported.
+    """
+    parsed_args = _parse_kwargs(kwargs)
+    namespaces = _validate_and_split_namespace(namespce)
+
+    def decorate(cls):
+        if not issubclass(cls, Enum):
+            raise ValueError(
+                f"Trying to export enum, which is of type: {type(cls)}. Should be Enum"
+            )
+        _add_enum(namespaces, cls, parsed_args)
         return cls
 
     return decorate
@@ -114,9 +145,9 @@ def _get_export(
 
     # Parse schemas
     if len(__schemas[namespace].keys()):
-        from ._parsers._marshmallow_parser import _MarshmallowParser
+        from .parsers.marshmallow_parser import MarshmallowParser
 
-        parser = _MarshmallowParser(
+        parser = MarshmallowParser(
             default_info_kwargs=__kwargs_defaults,
             strip_schema_from_name=strip_schema_keyword,
         )
@@ -129,13 +160,13 @@ def _get_export(
 
         schemas += list(parser.schemas.values())
         enums.update(parser.enums)
-    
+
     # Convert enums to list:
     enums = list(enums.items())
 
     if ordered_output:
-        _mark_nested_schemas(schemas)
-        _add_ordering_to_schemas(schemas)
+        mark_nested_schemas(schemas)
+        add_ordering_to_schemas(schemas)
         schemas.sort(key=lambda e: e.name.lower())
         schemas.sort(key=lambda e: e.ordering)
         enums.sort(key=lambda e: e[0].__name__.lower())

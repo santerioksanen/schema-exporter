@@ -44,6 +44,7 @@ class RootSchema(Schema):
     nested_leaf_2 = fields.Nested(MiddleSchema, many=True)
     list_leaf_1 = fields.List(fields.Nested(MiddleSchema))
     test_enum_1 = EnumField(TestEnum1)
+    test_enum_1_marshmallow = fields.Enum(TestEnum1)
 
 
 @export_schema(namespace="default")

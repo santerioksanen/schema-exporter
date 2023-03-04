@@ -50,4 +50,5 @@ pub struct Root {
     pub nested_leaf_2: Option<Vec<Middle>>,
     pub list_leaf_1: Option<Vec<Middle>>,
     pub test_enum_1: Option<TestEnum1>,
+    pub test_enum_1_marshmallow: Option<TestEnum1>,
 }

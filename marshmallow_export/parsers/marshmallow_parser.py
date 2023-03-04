@@ -2,13 +2,29 @@ from enum import Enum
 from typing import Type
 
 from marshmallow import Schema, fields
-from marshmallow_enum import EnumField
 
-from marshmallow_export._parsers._marshmallow_mappings import marshmallow_mappings
+# from marshmallow_enum import EnumField
+
+from marshmallow_export.parsers.marshmallow_mappings import marshmallow_mappings
 from marshmallow_export.types import EnumInfo, ParsedField, ParsedSchema
 
+class_enum_field = None
+class_marshamallow_enum_field = None
+try:
+    from marshmallow_enum import EnumField
 
-class _MarshmallowParser:
+    class_enum_field = EnumField
+except ImportError:
+    pass
+try:
+    from marshmallow.fields import Enum as MarshmallowEnumField
+
+    class_marshamallow_enum_field = MarshmallowEnumField
+except ImportError:
+    pass
+
+
+class MarshmallowParser:
     def __init__(
         self, default_info_kwargs: dict[str, any], strip_schema_from_name: bool = True
     ):
@@ -48,7 +64,12 @@ class _MarshmallowParser:
             nested_schemas.add(export_name)
             if ma_field.many:
                 many = True
-        elif isinstance(ma_field, EnumField):
+        elif class_enum_field is not None and isinstance(ma_field, class_enum_field):
+            export_name = ma_field.enum.__name__
+            self.add_enum(ma_field.enum)
+        elif class_marshamallow_enum_field is not None and isinstance(
+            ma_field, class_marshamallow_enum_field
+        ):
             export_name = ma_field.enum.__name__
             self.add_enum(ma_field.enum)
         elif issubclass(ma_field.__class__, fields.Field):
