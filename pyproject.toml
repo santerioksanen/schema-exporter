@@ -21,6 +21,7 @@ dev = [
     "djangorestframework==3.14.0",
     "marshmallow==3.19.0",
     "marshmallow-enum==1.5.1",
+    "mypy==1.0.1",
     "isort",
     "black",
     "build",
