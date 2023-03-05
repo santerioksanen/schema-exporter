@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Dict, List, Type
+from typing import Any, Dict, List, Set, Type
 
 from marshmallow_export.types import (
     EnumInfo,
@@ -42,7 +42,7 @@ class Types(Enum):
     UUID = Mapping(mapping="Uuid", imports={"uuid": ["Uuid"]})
 
 
-type_mappings: dict[PythonDatatypes, Mapping] = {
+type_mappings: Dict[PythonDatatypes, Mapping] = {
     PythonDatatypes.BOOL: Types.BOOL.value,
     PythonDatatypes.CONSTANT: Types.STRING.value,
     PythonDatatypes.DATETIME: Types.DATE_TIME_AWARE.value,
@@ -95,7 +95,7 @@ class Rust(BaseLanguage):
         return f"{derives}pub enum {e.__name__} {{\n{enum_fields_formatted}\n}}\n"
 
     def format_header(self, include_dump_only: bool, include_load_only: bool) -> str:
-        imports: dict[str, set[str]] = dict()
+        imports: Dict[str, Set[str]] = dict()
         for _, enum_info in self.enums:
             if "rust_enum_derives" in enum_info.kwargs:
                 for rust_derive in enum_info.kwargs["rust_enum_derives"]:

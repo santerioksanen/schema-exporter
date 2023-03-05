@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from enum import Enum
-from typing import Any, Dict, List, Type, Union
+from typing import Any, Dict, List, Tuple, Type, Union
 
 from marshmallow_export.types import (
     EnumInfo,
@@ -14,8 +14,8 @@ from marshmallow_export.types import (
 class BaseLanguage(metaclass=ABCMeta):
     def __init__(
         self,
-        schemas: list[ParsedSchema],
-        enums: list[tuple[Type[Enum], EnumInfo]],
+        schemas: List[ParsedSchema],
+        enums: List[Tuple[Type[Enum], EnumInfo]],
     ) -> None:
         self.schemas = schemas
         self.enums = enums
@@ -61,7 +61,7 @@ class BaseLanguage(metaclass=ABCMeta):
 
     @abstractmethod
     def _format_schema(
-        self, schema: ParsedSchema, schema_fields: list[ParsedField]
+        self, schema: ParsedSchema, schema_fields: List[ParsedField]
     ) -> str:
         pass
 

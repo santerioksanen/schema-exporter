@@ -1,10 +1,10 @@
-from typing import Type
+from typing import Dict, Type
 
 from rest_framework import serializers
 
 from marshmallow_export.types import PythonDatatypes
 
-drf_mappings: dict[Type[serializers.Field], PythonDatatypes] = {
+drf_mappings: Dict[Type[serializers.Field], PythonDatatypes] = {
     serializers.BooleanField: PythonDatatypes.BOOL,
     serializers.CharField: PythonDatatypes.STRING,
     serializers.EmailField: PythonDatatypes.EMAIL,

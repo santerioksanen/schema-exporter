@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Any, Dict, Generic, Type, TypeVar, Union
+from typing import Any, Dict, Generic, Set, Tuple, Type, TypeVar, Union
 
 from marshmallow_export.types import EnumInfo, ParsedField, ParsedSchema
 
@@ -14,9 +14,9 @@ class BaseParser(ABC, Generic[S, F]):
     ):
         self.strip_schema_from_name = strip_schema_from_name
         self.schemas: Dict[str, ParsedSchema] = dict()
-        self.schema_nests: Dict[ParsedSchema, set[str]] = dict()
+        self.schema_nests: Dict[ParsedSchema, Set[str]] = dict()
         self.enums: Dict[Type[Enum], EnumInfo] = dict()
-        self.schemas_to_parse: set[S] = set()
+        self.schemas_to_parse: Set[S] = set()
         self.default_info_kwargs = default_info_kwargs
 
     @abstractmethod
@@ -27,7 +27,7 @@ class BaseParser(ABC, Generic[S, F]):
         pass
 
     @abstractmethod
-    def parse_field(self, field_name: str, field: F) -> tuple[ParsedField, set[str]]:
+    def parse_field(self, field_name: str, field: F) -> Tuple[ParsedField, Set[str]]:
         pass
 
     @abstractmethod

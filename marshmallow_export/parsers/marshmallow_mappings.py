@@ -1,10 +1,10 @@
-from typing import Type
+from typing import Dict, Type
 
 from marshmallow import fields
 
 from marshmallow_export.types import PythonDatatypes
 
-marshmallow_mappings: dict[Type[fields.Field], PythonDatatypes] = {
+marshmallow_mappings: Dict[Type[fields.Field], PythonDatatypes] = {
     fields.AwareDateTime: PythonDatatypes.DATETIME,
     fields.Bool: PythonDatatypes.BOOL,
     fields.Constant: PythonDatatypes.CONSTANT,

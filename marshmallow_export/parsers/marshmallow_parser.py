@@ -1,5 +1,5 @@
 from inspect import isclass
-from typing import Any, Set, Type, Union
+from typing import Any, Dict, List, Set, Tuple, Type, Union
 
 from marshmallow import Schema, fields
 
@@ -37,7 +37,7 @@ class MarshmallowParser(BaseParser[Type[Schema], fields.Field]):
 
     def parse_field(
         self, field_name: str, field: fields.Field
-    ) -> tuple[ParsedField, set[str]]:
+    ) -> Tuple[ParsedField, Set[str]]:
         ma_field = field
         many = False
         python_datatype = None
@@ -89,7 +89,7 @@ class MarshmallowParser(BaseParser[Type[Schema], fields.Field]):
         )
 
     def parse_and_add_schema(
-        self, schema: Type[Schema], schema_kwargs: Union[dict[str, Any], None] = None
+        self, schema: Type[Schema], schema_kwargs: Union[Dict[str, Any], None] = None
     ) -> None:
         if schema_kwargs is None:
             schema_kwargs = self.default_info_kwargs
@@ -99,7 +99,7 @@ class MarshmallowParser(BaseParser[Type[Schema], fields.Field]):
             return
 
         nested_schemas = set()
-        fields: list[ParsedField] = []
+        fields: List[ParsedField] = []
         for field_name, field in schema._declared_fields.items():
             parsed_field, _nested_schemas = self.parse_field(field_name, field)
             nested_schemas.update(_nested_schemas)

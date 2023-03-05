@@ -1,4 +1,4 @@
-from typing import Any, Union
+from typing import Any, Dict, List, Set, Tuple, Union
 
 from rest_framework import serializers
 
@@ -21,7 +21,7 @@ class DRFParser(BaseParser[serializers.Serializer, serializers.Field]):
 
     def parse_field(
         self, field_name: str, field: serializers.Field
-    ) -> tuple[ParsedField, set[str]]:
+    ) -> Tuple[ParsedField, Set[str]]:
         drf_field = field
         many = False
         python_datatype = None
@@ -64,7 +64,7 @@ class DRFParser(BaseParser[serializers.Serializer, serializers.Field]):
     def parse_and_add_schema(
         self,
         serializer: serializers.Serializer,
-        schema_kwargs: Union[dict[str, Any], None] = None,
+        schema_kwargs: Union[Dict[str, Any], None] = None,
     ) -> None:
         if schema_kwargs is None:
             schema_kwargs = self.default_info_kwargs
@@ -74,7 +74,7 @@ class DRFParser(BaseParser[serializers.Serializer, serializers.Field]):
             return
 
         nested_schemas = set()
-        fields: list[ParsedField] = []
+        fields: List[ParsedField] = []
         for field_name, field in serializer.fields.items():
             parsed_field, _nested_serializers = self.parse_field(field_name, field)
             nested_schemas.update(_nested_serializers)

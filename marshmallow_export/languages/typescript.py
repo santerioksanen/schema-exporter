@@ -21,7 +21,7 @@ class Types(Enum):
     ANY = Mapping(mapping="any")
 
 
-type_mappings: dict[PythonDatatypes, Mapping] = {
+type_mappings: Dict[PythonDatatypes, Mapping] = {
     PythonDatatypes.BOOL: Types.BOOL.value,
     PythonDatatypes.CONSTANT: Types.STRING.value,
     PythonDatatypes.DATETIME: Types.DATE.value,
