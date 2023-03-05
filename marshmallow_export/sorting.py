@@ -1,7 +1,9 @@
+from typing import List
+
 from .types import ParsedSchema
 
 
-def mark_nested_schemas(schemas: list[ParsedSchema]):
+def mark_nested_schemas(schemas: List[ParsedSchema]):
     changed = True
     while changed:
         changed = False
@@ -17,7 +19,7 @@ def mark_nested_schemas(schemas: list[ParsedSchema]):
                     nested_by_schema.nests.add(parsed_schema)
 
 
-def add_ordering_to_schemas(schemas: list[ParsedSchema]):
+def add_ordering_to_schemas(schemas: List[ParsedSchema]):
     changed = True
     while changed:
         changed = False

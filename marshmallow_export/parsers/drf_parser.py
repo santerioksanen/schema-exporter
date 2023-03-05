@@ -11,7 +11,7 @@ from .base_parser import BaseParser
 class DRFParser(BaseParser[serializers.Serializer, serializers.Field]):
     def _get_schema_export_name(
         self,
-        serializer: Type[serializers.Serializer],
+        serializer: serializers.Serializer,
     ):
         name = serializer.__class__.__name__
         if self.strip_schema_from_name:
@@ -20,7 +20,7 @@ class DRFParser(BaseParser[serializers.Serializer, serializers.Field]):
         return name
 
     def parse_field(
-        self, field_name: str, field: Type[serializers.Field]
+        self, field_name: str, field: serializers.Field
     ) -> tuple[ParsedField, set[str]]:
         drf_field = field
         many = False
@@ -31,12 +31,12 @@ class DRFParser(BaseParser[serializers.Serializer, serializers.Field]):
         if issubclass(drf_field.__class__, serializers.ListSerializer) or isinstance(
             drf_field, serializers.ListField
         ):
-            drf_field = drf_field.child
+            drf_field = drf_field.child  # type: ignore[attr-defined]
             many = True
 
         if issubclass(drf_field.__class__, serializers.Serializer):
-            self.schemas_to_parse.add(drf_field)
-            export_name = self._get_schema_export_name(drf_field)
+            self.schemas_to_parse.add(drf_field)  # type: ignore
+            export_name = self._get_schema_export_name(drf_field)  # type: ignore
             nested_serializers.add(export_name)
 
         # TODO: Add parsers for choice field, enum fields
@@ -62,7 +62,9 @@ class DRFParser(BaseParser[serializers.Serializer, serializers.Field]):
         )
 
     def parse_and_add_schema(
-        self, serializer: serializers.Serializer, schema_kwargs: dict[str, Any] | None = None
+        self,
+        serializer: serializers.Serializer,
+        schema_kwargs: dict[str, Any] | None = None,
     ) -> None:
         if schema_kwargs is None:
             schema_kwargs = self.default_info_kwargs

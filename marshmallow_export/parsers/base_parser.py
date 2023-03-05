@@ -1,43 +1,44 @@
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Any, Generic, Type, TypeVar
+from typing import Any, Dict, Generic, Type, TypeVar
 
 from marshmallow_export.types import EnumInfo, ParsedField, ParsedSchema
 
-S, F = TypeVar("T"), TypeVar("F")
+S = TypeVar("S")
+F = TypeVar("F")
 
 
 class BaseParser(ABC, Generic[S, F]):
     def __init__(
-        self, default_info_kwargs: dict[str, Any], strip_schema_from_name: bool = True
+        self, default_info_kwargs: Dict[str, Any], strip_schema_from_name: bool = True
     ):
         self.strip_schema_from_name = strip_schema_from_name
-        self.schemas: dict[str, ParsedSchema] = dict()
-        self.schema_nests: dict[ParsedSchema, set[str]] = dict()
-        self.enums: dict[Type[Enum], EnumInfo] = dict()
-        self.schemas_to_parse: set[Type[S]] = set()
+        self.schemas: Dict[str, ParsedSchema] = dict()
+        self.schema_nests: Dict[ParsedSchema, set[str]] = dict()
+        self.enums: Dict[Type[Enum], EnumInfo] = dict()
+        self.schemas_to_parse: set[S] = set()
         self.default_info_kwargs = default_info_kwargs
 
     @abstractmethod
     def _get_schema_export_name(
         self,
-        schema: Type[S],
+        schema: S,
     ):
         pass
 
     @abstractmethod
-    def parse_field(
-        self, field_name: str, field: Type[F]
-    ) -> tuple[ParsedField, set[str]]:
+    def parse_field(self, field_name: str, field: F) -> tuple[ParsedField, set[str]]:
         pass
 
     @abstractmethod
     def parse_and_add_schema(
-        self, schema: S, schema_kwargs: dict[str, Any] | None = None
+        self, schema: S, schema_kwargs: Dict[str, Any] | None = None
     ) -> None:
         pass
 
-    def add_enum(self, en: Type[Enum], info_kwargs: dict[str, Any] | None = None) -> None:
+    def add_enum(
+        self, en: Type[Enum], info_kwargs: Dict[str, Any] | None = None
+    ) -> None:
         if info_kwargs is None:
             info_kwargs = self.default_info_kwargs
 

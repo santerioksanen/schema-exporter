@@ -43,8 +43,8 @@ class Mapping:
 
 @dataclass
 class ParsedField:
-    python_datatype: PythonDatatypes | None  # Set to none if a reference to other
-    export_name: str | None  # Set name to reference
+    python_datatype: Union[PythonDatatypes, None]  # Set to none if a reference to other
+    export_name: Union[str, None]  # Set name to reference
     field_name: str
     required: bool = False
     allow_none: bool = False
@@ -56,7 +56,7 @@ class ParsedField:
 @dataclass
 class ParsedSchema:
     name: str
-    fields: list[ParsedField]
+    fields: List[ParsedField]
     nests: Set["ParsedSchema"] = dataclasses.field(default_factory=set)
     nested_by: Set["ParsedSchema"] = dataclasses.field(default_factory=set)
     ordering: int = 0

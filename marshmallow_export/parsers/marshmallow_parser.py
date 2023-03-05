@@ -1,4 +1,5 @@
-from typing import Any, Type
+from inspect import isclass
+from typing import Any, Set, Type
 
 from marshmallow import Schema, fields
 
@@ -10,7 +11,7 @@ from .base_parser import BaseParser
 class_enum_field = None
 class_marshamallow_enum_field = None
 try:
-    from marshmallow_enum import EnumField
+    from marshmallow_enum import EnumField  # type: ignore
 
     class_enum_field = EnumField
 except ImportError:
@@ -23,7 +24,7 @@ except ImportError:
     pass
 
 
-class MarshmallowParser(BaseParser[Schema, fields.Field]):
+class MarshmallowParser(BaseParser[Type[Schema], fields.Field]):
     def _get_schema_export_name(
         self,
         schema: Type[Schema],
@@ -35,19 +36,24 @@ class MarshmallowParser(BaseParser[Schema, fields.Field]):
         return name
 
     def parse_field(
-        self, field_name: str, field: Type[fields.Field]
+        self, field_name: str, field: fields.Field
     ) -> tuple[ParsedField, set[str]]:
         ma_field = field
         many = False
         python_datatype = None
         export_name = None
-        nested_schemas = set()
+        nested_schemas: Set[str] = set()
 
         if isinstance(ma_field, fields.List):
             ma_field = ma_field.inner
             many = True
 
         if isinstance(ma_field, fields.Nested):
+            if not isclass(ma_field.nested) or not issubclass(ma_field.nested, Schema):
+                raise ValueError(
+                    f"Trying to parse nested field of type: {type(ma_field.nested)}"
+                )
+
             self.schemas_to_parse.add(ma_field.nested)
             export_name = self._get_schema_export_name(ma_field.nested)
             nested_schemas.add(export_name)
@@ -61,7 +67,7 @@ class MarshmallowParser(BaseParser[Schema, fields.Field]):
         ):
             export_name = ma_field.enum.__name__
             self.add_enum(ma_field.enum)
-        elif issubclass(ma_field.__class__, fields.Field):
+        elif issubclass(type(ma_field), fields.Field):
             if ma_field.__class__ not in marshmallow_mappings:
                 raise NotImplementedError(
                     f"Parser for {ma_field.__class__} not implemented"
@@ -83,7 +89,7 @@ class MarshmallowParser(BaseParser[Schema, fields.Field]):
         )
 
     def parse_and_add_schema(
-        self, schema: Schema, schema_kwargs: dict[str, Any] | None = None
+        self, schema: Type[Schema], schema_kwargs: dict[str, Any] | None = None
     ) -> None:
         if schema_kwargs is None:
             schema_kwargs = self.default_info_kwargs

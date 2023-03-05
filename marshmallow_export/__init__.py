@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from enum import Enum, EnumMeta
+from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Type
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Type, Union
 
 from .languages import Rust, Typescript
 from .languages.base_language import BaseLanguage
@@ -14,12 +14,17 @@ if TYPE_CHECKING:
     from marshmallow import Schema
     from rest_framework.serializers import Serializer
 
+    from .parsers.base_parser import BaseParser
+    from .types import ParsedSchema
 
-__schemas = defaultdict(lambda: dict())
-__enums = defaultdict(lambda: dict())
-__serializers = defaultdict(lambda: dict())
+
+__schemas: Dict[str, Dict[Type[Schema], SchemaInfo]] = defaultdict(lambda: dict())
+__enums: Dict[str, Dict[Type[Enum], EnumInfo]] = defaultdict(lambda: dict())
+__serializers: Dict[str, Dict[Type[Serializer], SchemaInfo]] = defaultdict(
+    lambda: dict()
+)
 __languages: Dict[str, Type[BaseLanguage]] = dict()
-__kwargs_defaults = dict()
+__kwargs_defaults: Dict[str, Any] = dict()
 
 
 def _register_language(language: Type[BaseLanguage]):
@@ -45,11 +50,11 @@ def _add_serializer(
     namespaces: List[str], cls: Type[Serializer], parsed_args: Dict[str, Any]
 ) -> None:
     for n in namespaces:
-        __serializers[n][cls()] = SchemaInfo(kwargs=parsed_args)
+        __serializers[n][cls] = SchemaInfo(kwargs=parsed_args)
 
 
 def _add_enum(
-    namespaces: List[str], cls: EnumMeta, parsed_args: Dict[str, Any]
+    namespaces: List[str], cls: Type[Enum], parsed_args: Dict[str, Any]
 ) -> None:
     for n in namespaces:
         __enums[n][cls] = EnumInfo(kwargs=parsed_args)
@@ -148,6 +153,30 @@ def export_serializer(namespace: str = "default", **kwargs):
     return decorate
 
 
+def _do_parse(
+    parser_cls: Type[BaseParser],
+    schemas: Union[Dict[Type[Schema], SchemaInfo], Dict[Type[Serializer], SchemaInfo]],
+    strip_schema_keyword: bool,
+    expand_nested: bool,
+    instantiate_schema: bool = False,
+) -> Tuple[Dict[str, ParsedSchema], Dict[Type[Enum], EnumInfo]]:
+    parser = parser_cls(
+        default_info_kwargs=__kwargs_defaults,
+        strip_schema_from_name=strip_schema_keyword,
+    )
+
+    for schema, schema_info in schemas.items():
+        if instantiate_schema:
+            schema = schema()  # type: ignore
+
+        parser.parse_and_add_schema(schema, schema_info.kwargs)
+
+    if expand_nested:
+        parser.parse_nested()
+
+    return parser.schemas, parser.enums
+
+
 def _get_export(
     language: str,
     namespace: str,
@@ -166,50 +195,38 @@ def _get_export(
     if namespace in __schemas and len(__schemas[namespace].keys()):
         from .parsers.marshmallow_parser import MarshmallowParser
 
-        parser = MarshmallowParser(
-            default_info_kwargs=__kwargs_defaults,
-            strip_schema_from_name=strip_schema_keyword,
+        new_schemas, new_enums = _do_parse(
+            MarshmallowParser, __schemas[namespace], strip_schema_keyword, expand_nested
         )
-        if namespace in __schemas:
-            for schema, schema_info in __schemas[namespace].items():
-                parser.parse_and_add_schema(schema, schema_info.kwargs)
-
-        if expand_nested:
-            parser.parse_nested()
-
-        schemas += list(parser.schemas.values())
-        enums.update(parser.enums)
+        schemas += list(new_schemas.values())
+        enums.update(new_enums)
 
     # Parse serializers
     if namespace in __serializers and len(__serializers[namespace].keys()):
         from .parsers.drf_parser import DRFParser
 
-        parser = DRFParser(
-            default_info_kwargs=__kwargs_defaults,
-            strip_schema_from_name=strip_schema_keyword,
+        new_schemas, new_enums = _do_parse(
+            DRFParser,
+            __serializers[namespace],
+            strip_schema_keyword,
+            expand_nested,
+            instantiate_schema=True,
         )
-        if namespace in __serializers:
-            for serializer, schema_info in __serializers[namespace].items():
-                parser.parse_and_add_schema(serializer, schema_info.kwargs)
-
-        if expand_nested:
-            parser.parse_nested()
-
-        schemas += list(parser.schemas.values())
-        enums.update(parser.enums)
+        schemas += list(new_schemas.values())
+        enums.update(new_enums)
 
     # Convert enums to list:
-    enums = list(enums.items())
+    enums_list = list(enums.items())
 
     if ordered_output:
         mark_nested_schemas(schemas)
         add_ordering_to_schemas(schemas)
         schemas.sort(key=lambda e: e.name.lower())
         schemas.sort(key=lambda e: e.ordering)
-        enums.sort(key=lambda e: e[0].__name__.lower())
+        enums_list.sort(key=lambda e: e[0].__name__.lower())
 
     lng_class = __languages[language]
-    exporter = lng_class(schemas=schemas, enums=enums)
+    exporter = lng_class(schemas=schemas, enums=enums_list)
 
     # Export schemas
     return exporter.export(

@@ -26,10 +26,15 @@ class BaseLanguage(metaclass=ABCMeta):
         pass
 
     def map_schema_field(self, field: ParsedField) -> str | Mapping:
-        if field.export_name:
+        if field.export_name is not None:
             return field.export_name
 
-        return self.type_mappings[field.python_datatype]
+        if field.python_datatype is not None:
+            return self.type_mappings[field.python_datatype]
+
+        raise ValueError(
+            f"Incompatible parsed field: {field}. Either export_name or python_datatype must be set"
+        )
 
     @staticmethod
     @abstractmethod
