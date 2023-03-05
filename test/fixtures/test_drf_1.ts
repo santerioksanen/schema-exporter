@@ -1,3 +1,9 @@
+export enum TestEnum1 {
+  A = "a",
+  B = "b",
+  C = "c",
+}
+
 export interface Leaf {
   bool_1: boolean;
   datetime_1: Date;
@@ -12,6 +18,7 @@ export interface Leaf2 {
 }
 
 export interface Middle {
+  test_enum_1: TestEnum1;
   leaf_schema: Leaf;
 }
 

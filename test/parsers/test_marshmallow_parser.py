@@ -1,4 +1,3 @@
-import unittest
 from enum import Enum
 
 from marshmallow import Schema, fields
@@ -6,7 +5,9 @@ from marshmallow_enum import EnumField
 
 from marshmallow_export.parsers.marshmallow_mappings import marshmallow_mappings
 from marshmallow_export.parsers.marshmallow_parser import MarshmallowParser
-from marshmallow_export.types import ParsedField, PythonDatatypes, SchemaInfo
+from marshmallow_export.types import PythonDatatypes
+
+from ._common import BaseParserTests
 
 NOT_DEFINED = "NOT_DEFINED"
 
@@ -71,7 +72,7 @@ class RootSchema(Schema):
     nested = fields.Nested(NestingSchema)
 
 
-class MarshmallowParserTests(unittest.TestCase):
+class MarshmallowParserTests(BaseParserTests):
     def setUp(self):
         self.parser_default = MarshmallowParser(
             default_info_kwargs=dict(), strip_schema_from_name=True
@@ -79,21 +80,6 @@ class MarshmallowParserTests(unittest.TestCase):
         self.parser_dont_strip_name = MarshmallowParser(
             default_info_kwargs=dict(), strip_schema_from_name=False
         )
-
-    def assert_parsed_field(self, parsed_field: ParsedField, expected: dict) -> None:
-        args = {
-            "python_datatype": None,
-            "export_name": None,
-            "field_name": "",
-            "required": False,
-            "allow_none": False,
-            "many": False,
-            "dump_only": False,
-            "load_only": False,
-        }
-        args.update(expected)
-        for key, value in args.items():
-            self.assertEqual(getattr(parsed_field, key), value)
 
     def test_verify_field_mappings(self) -> None:
         for key, value in field_mappings.items():

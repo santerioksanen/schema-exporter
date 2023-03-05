@@ -1,4 +1,5 @@
-from typing import Any, Dict, List, Set, Tuple, Union
+from enum import Enum
+from typing import Any, Dict, List, Set, Tuple, Type, Union
 
 from rest_framework import serializers
 
@@ -6,6 +7,25 @@ from marshmallow_export.parsers.drf_mappings import drf_mappings
 from marshmallow_export.types import ParsedField, ParsedSchema
 
 from .base_parser import BaseParser
+
+
+def _to_pascal_case(s: str) -> str:
+    return s.replace("_", " ").title().replace(" ", "")
+
+
+def _create_enum_from_choices(
+    field_name: str,
+    field: Union[serializers.ChoiceField, serializers.MultipleChoiceField],
+) -> Tuple[Type[Enum], bool]:
+    choices = {}
+    many = False
+    if isinstance(field, serializers.MultipleChoiceField):
+        many = True
+
+    if isinstance(field.choices, dict):
+        choices.update(field.choices)
+
+    return Enum(_to_pascal_case(field_name), choices), many  # type: ignore
 
 
 class DRFParser(BaseParser[serializers.Serializer, serializers.Field]):
@@ -34,10 +54,18 @@ class DRFParser(BaseParser[serializers.Serializer, serializers.Field]):
             drf_field = drf_field.child  # type: ignore[attr-defined]
             many = True
 
+        if hasattr(drf_field, "many"):
+            many = drf_field.many
+
         if issubclass(drf_field.__class__, serializers.Serializer):
             self.schemas_to_parse.add(drf_field)  # type: ignore
             export_name = self._get_schema_export_name(drf_field)  # type: ignore
             nested_serializers.add(export_name)
+
+        elif isinstance(drf_field, serializers.ChoiceField):
+            en, many = _create_enum_from_choices(field_name, drf_field)
+            export_name = en.__name__
+            self.add_enum(en)
 
         # TODO: Add parsers for choice field, enum fields
         elif issubclass(drf_field.__class__, serializers.Field):

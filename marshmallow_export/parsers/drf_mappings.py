@@ -8,8 +8,8 @@ drf_mappings: Dict[Type[serializers.Field], PythonDatatypes] = {
     serializers.BooleanField: PythonDatatypes.BOOL,
     serializers.CharField: PythonDatatypes.STRING,
     serializers.EmailField: PythonDatatypes.EMAIL,
-    serializers.RegexField: PythonDatatypes.UNDEFINED,
-    serializers.SlugField: PythonDatatypes.UNDEFINED,
+    serializers.RegexField: PythonDatatypes.STRING,  # RegexField also validates
+    serializers.SlugField: PythonDatatypes.STRING,  # SlugField also validates
     serializers.URLField: PythonDatatypes.URL,
     serializers.UUIDField: PythonDatatypes.UUID,
     serializers.FilePathField: PythonDatatypes.UNDEFINED,
@@ -24,6 +24,11 @@ drf_mappings: Dict[Type[serializers.Field], PythonDatatypes] = {
     serializers.FileField: PythonDatatypes.UNDEFINED,
     serializers.ImageField: PythonDatatypes.UNDEFINED,
     serializers.DictField: PythonDatatypes.DICT,
-    serializers.HStoreField: PythonDatatypes.UNDEFINED,
+    serializers.HStoreField: PythonDatatypes.DICT,
     serializers.JSONField: PythonDatatypes.JSON_FIELD,
+    serializers.SlugRelatedField: PythonDatatypes.STRING,
+    serializers.StringRelatedField: PythonDatatypes.STRING,
+    serializers.PrimaryKeyRelatedField: PythonDatatypes.INT,
+    serializers.HyperlinkedRelatedField: PythonDatatypes.URL,
+    serializers.HyperlinkedIdentityField: PythonDatatypes.URL,
 }

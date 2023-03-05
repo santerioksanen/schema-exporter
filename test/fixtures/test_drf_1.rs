@@ -1,6 +1,14 @@
 use chrono::{DateTime, Utc};
 use rust_decimal::Decimal;
 use serde_derive::{Deserialize, Serialize};
+use strum_macros::{AsStaticStr, Display, EnumString};
+
+#[derive(AsStaticStr, Clone, Copy, Debug, Deserialize, Display, EnumString, Serialize)]
+pub enum TestEnum1 {
+    A,
+    B,
+    C,
+}
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Leaf {
@@ -19,6 +27,7 @@ pub struct Leaf2 {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Middle {
+    pub test_enum_1: TestEnum1,
     pub leaf_schema: Leaf,
 }
 

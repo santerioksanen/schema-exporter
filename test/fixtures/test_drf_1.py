@@ -33,7 +33,7 @@ class LeafSerializer2(serializers.Serializer):
 
 
 class MiddleSerializer(serializers.Serializer):
-    # test_enum_2 = fields.List(EnumField(TestEnum2))
+    test_enum_1 = serializers.ChoiceField(choices=[("A", "a"), ("B", "b"), ("C", "c")])
     leaf_schema = LeafSerializer()
 
 
