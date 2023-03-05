@@ -52,16 +52,16 @@ class Typescript(BaseLanguage):
 
     @staticmethod
     def _format_enum_field(field_name: str, value: Enum) -> str:
-        value = value.value
-        if not isinstance(value, int):
-            value = f'"{value}"'
+        val = value.value
+        if not isinstance(val, int):
+            val = f'"{val}"'
 
-        return f"  {field_name} = {value},"
+        return f"  {field_name} = {val},"
 
     @staticmethod
     def _format_enum(e: EnumMeta, enum_fields: List[str], enum_info: EnumInfo) -> str:
-        enum_fields = "\n".join(enum_fields)
-        return f"export enum {e.__name__} {{\n{enum_fields}\n}}\n"
+        enum_fields_formatted = "\n".join(enum_fields)
+        return f"export enum {e.__name__} {{\n{enum_fields_formatted}\n}}\n"
 
     def format_header(self, include_dump_only: bool, include_load_only: bool) -> str:
         return ""

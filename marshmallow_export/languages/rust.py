@@ -47,16 +47,16 @@ type_mappings: dict[PythonDatatypes, Mapping] = {
     PythonDatatypes.CONSTANT: Types.STRING.value,
     PythonDatatypes.DATETIME: Types.DATE_TIME_AWARE.value,
     PythonDatatypes.DECIMAL: Types.DECIMAL.value,
-    PythonDatatypes.DICT: None,
+    #PythonDatatypes.DICT: None,
     PythonDatatypes.EMAIL: Types.STRING.value,
-    PythonDatatypes.FIELD: None,
+    #PythonDatatypes.FIELD: None,
     PythonDatatypes.FLOAT: Types.FLOAT.value,
-    PythonDatatypes.FUNCTION: None,
+    #PythonDatatypes.FUNCTION: None,
     PythonDatatypes.INT: Types.INTEGER.value,
-    PythonDatatypes.MAPPING: None,
-    PythonDatatypes.METHOD: None,
+    #PythonDatatypes.MAPPING: None,
+    #PythonDatatypes.METHOD: None,
     PythonDatatypes.STRING: Types.STRING.value,
-    PythonDatatypes.TIMEDELTA: None,
+    #PythonDatatypes.TIMEDELTA: None,
     PythonDatatypes.URL: Types.STRING.value,
     PythonDatatypes.UUID: Types.UUID.value,
 }
@@ -80,7 +80,7 @@ class Rust(BaseLanguage):
 
     @staticmethod
     def _format_enum(e: Type[Enum], enum_fields: List[str], enum_info: EnumInfo) -> str:
-        enum_fields = "\n".join(enum_fields)
+        enum_fields_formatted = "\n".join(enum_fields)
         derives = ""
         if (
             "rust_enum_derives" in enum_info.kwargs
@@ -92,10 +92,10 @@ class Rust(BaseLanguage):
             )
             derives = f'#[derive({", ".join([m for m in derive_str])})]\n'
 
-        return f"{derives}pub enum {e.__name__} {{\n{enum_fields}\n}}\n"
+        return f"{derives}pub enum {e.__name__} {{\n{enum_fields_formatted}\n}}\n"
 
     def format_header(self, include_dump_only: bool, include_load_only: bool) -> str:
-        imports = dict()
+        imports: dict[str, set[str]] = dict()
         for _, enum_info in self.enums:
             if "rust_enum_derives" in enum_info.kwargs:
                 for rust_derive in enum_info.kwargs["rust_enum_derives"]:
@@ -136,9 +136,9 @@ class Rust(BaseLanguage):
 
                     imports[lib].update(imp)
 
-        imports = sorted(list(imports.items()), key=lambda e: e[0].lower())
+        imports_sorted = sorted(list(imports.items()), key=lambda e: e[0].lower())
         formatted = list()
-        for lib, imp in imports:
+        for lib, imp in imports_sorted:
             imp = sorted(imp, key=lambda e: e.lower())
             formatted_imp = ""
             if len(imp) > 1:
@@ -173,7 +173,7 @@ class Rust(BaseLanguage):
     def _format_schema(
         self, schema: ParsedSchema, schema_fields: List[ParsedField]
     ) -> str:
-        schema_fields = "\n".join(
+        schema_fields_formatted = "\n".join(
             [self._format_schema_field(fld) for fld in schema_fields]
         )
         derives = ""
@@ -188,4 +188,4 @@ class Rust(BaseLanguage):
             )
             derives = f'#[derive({", ".join([m for m in derive_str])})]\n'
 
-        return f"{derives}pub struct {schema.name} {{\n{schema_fields}\n}}\n"
+        return f"{derives}pub struct {schema.name} {{\n{schema_fields_formatted}\n}}\n"

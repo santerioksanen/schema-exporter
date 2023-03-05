@@ -61,7 +61,7 @@ class ParsedSchema:
     nested_by: Set["ParsedSchema"] = dataclasses.field(default_factory=set)
     ordering: int = 0
     kwargs: Dict[str, Any] = dataclasses.field(default_factory=dict)
-    _uuid: uuid = uuid.uuid4()
+    _uuid = uuid.uuid4()
 
     def __hash__(self):
         return hash(self._uuid)

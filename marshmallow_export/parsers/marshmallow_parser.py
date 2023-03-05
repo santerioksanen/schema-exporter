@@ -1,4 +1,4 @@
-from typing import Type
+from typing import Any, Type
 
 from marshmallow import Schema, fields
 
@@ -83,7 +83,7 @@ class MarshmallowParser(BaseParser[Schema, fields.Field]):
         )
 
     def parse_and_add_schema(
-        self, schema: Schema, schema_kwargs: dict[str, any] = None
+        self, schema: Schema, schema_kwargs: dict[str, Any] | None = None
     ) -> None:
         if schema_kwargs is None:
             schema_kwargs = self.default_info_kwargs

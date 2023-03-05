@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Generic, Type, TypeVar
+from typing import Any, Generic, Type, TypeVar
 
 from marshmallow_export.types import EnumInfo, ParsedField, ParsedSchema
 
@@ -9,7 +9,7 @@ S, F = TypeVar("T"), TypeVar("F")
 
 class BaseParser(ABC, Generic[S, F]):
     def __init__(
-        self, default_info_kwargs: dict[str, any], strip_schema_from_name: bool = True
+        self, default_info_kwargs: dict[str, Any], strip_schema_from_name: bool = True
     ):
         self.strip_schema_from_name = strip_schema_from_name
         self.schemas: dict[str, ParsedSchema] = dict()
@@ -33,11 +33,11 @@ class BaseParser(ABC, Generic[S, F]):
 
     @abstractmethod
     def parse_and_add_schema(
-        self, schema: S, schema_kwargs: dict[str, any] = None
+        self, schema: S, schema_kwargs: dict[str, Any] | None = None
     ) -> None:
         pass
 
-    def add_enum(self, en: Type[Enum], info_kwargs: dict[str, any] = None) -> None:
+    def add_enum(self, en: Type[Enum], info_kwargs: dict[str, Any] | None = None) -> None:
         if info_kwargs is None:
             info_kwargs = self.default_info_kwargs
 

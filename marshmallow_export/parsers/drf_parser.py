@@ -1,10 +1,9 @@
-from enum import Enum
-from typing import Type
+from typing import Any, Type
 
 from rest_framework import serializers
 
 from marshmallow_export.parsers.drf_mappings import drf_mappings
-from marshmallow_export.types import EnumInfo, ParsedField, ParsedSchema
+from marshmallow_export.types import ParsedField, ParsedSchema
 
 from .base_parser import BaseParser
 
@@ -63,7 +62,7 @@ class DRFParser(BaseParser[serializers.Serializer, serializers.Field]):
         )
 
     def parse_and_add_schema(
-        self, serializer: serializers.Serializer, schema_kwargs: dict[str, any] = None
+        self, serializer: serializers.Serializer, schema_kwargs: dict[str, Any] | None = None
     ) -> None:
         if schema_kwargs is None:
             schema_kwargs = self.default_info_kwargs
