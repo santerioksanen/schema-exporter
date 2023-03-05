@@ -33,7 +33,7 @@ jobs:
           flake8 test --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       - name: Run mypy
         run: |
-          mypy --follow-imports=normal marshmallow_export
+          mypy marshmallow_export
       - name: Test with unittest
         run: |
           python test.py

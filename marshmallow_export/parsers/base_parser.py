@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Any, Dict, Generic, Type, TypeVar
+from typing import Any, Dict, Generic, Type, TypeVar, Union
 
 from marshmallow_export.types import EnumInfo, ParsedField, ParsedSchema
 
@@ -32,12 +32,12 @@ class BaseParser(ABC, Generic[S, F]):
 
     @abstractmethod
     def parse_and_add_schema(
-        self, schema: S, schema_kwargs: Dict[str, Any] | None = None
+        self, schema: S, schema_kwargs: Union[Dict[str, Any], None] = None
     ) -> None:
         pass
 
     def add_enum(
-        self, en: Type[Enum], info_kwargs: Dict[str, Any] | None = None
+        self, en: Type[Enum], info_kwargs: Union[Dict[str, Any], None] = None
     ) -> None:
         if info_kwargs is None:
             info_kwargs = self.default_info_kwargs

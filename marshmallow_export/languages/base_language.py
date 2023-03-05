@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from enum import Enum
-from typing import Any, Dict, List, Type
+from typing import Any, Dict, List, Type, Union
 
 from marshmallow_export.types import (
     EnumInfo,
@@ -25,7 +25,7 @@ class BaseLanguage(metaclass=ABCMeta):
     def type_mappings(self) -> Dict[PythonDatatypes, Mapping]:
         pass
 
-    def map_schema_field(self, field: ParsedField) -> str | Mapping:
+    def map_schema_field(self, field: ParsedField) -> Union[str, Mapping]:
         if field.export_name is not None:
             return field.export_name
 

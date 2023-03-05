@@ -18,7 +18,9 @@ build-backend = "setuptools.build_meta"
 [project.optional-dependencies]
 dev = [
     "Django==4.1.7",
+    "django-stubs==1.15.0",
     "djangorestframework==3.14.0",
+    "djangorestframework-stubs==1.9.1",
     "marshmallow==3.19.0",
     "marshmallow-enum==1.5.1",
     "mypy==1.0.1",

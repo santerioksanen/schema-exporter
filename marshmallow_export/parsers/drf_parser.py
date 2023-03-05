@@ -1,4 +1,4 @@
-from typing import Any, Type
+from typing import Any, Union
 
 from rest_framework import serializers
 
@@ -64,7 +64,7 @@ class DRFParser(BaseParser[serializers.Serializer, serializers.Field]):
     def parse_and_add_schema(
         self,
         serializer: serializers.Serializer,
-        schema_kwargs: dict[str, Any] | None = None,
+        schema_kwargs: Union[dict[str, Any], None] = None,
     ) -> None:
         if schema_kwargs is None:
             schema_kwargs = self.default_info_kwargs
