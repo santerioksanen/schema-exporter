@@ -1,6 +1,6 @@
 import unittest
 
-from marshmallow_export.types import ParsedField
+from schema_exporter.types import ParsedField
 
 
 class BaseParserTests(unittest.TestCase):

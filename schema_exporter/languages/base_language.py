@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractmethod
 from enum import Enum
 from typing import Any, Dict, List, Tuple, Type, Union
 
-from marshmallow_export.types import (
+from schema_exporter.types import (
     EnumInfo,
     Mapping,
     ParsedField,

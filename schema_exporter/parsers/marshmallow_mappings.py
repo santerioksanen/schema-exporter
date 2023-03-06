@@ -2,7 +2,7 @@ from typing import Dict, Type
 
 from marshmallow import fields
 
-from marshmallow_export.types import PythonDatatypes
+from schema_exporter.types import PythonDatatypes
 
 marshmallow_mappings: Dict[Type[fields.Field], PythonDatatypes] = {
     fields.AwareDateTime: PythonDatatypes.DATETIME,

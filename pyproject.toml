@@ -1,5 +1,5 @@
 [project]
-name = "marshmallow_export"
+name = "schema_exporter"
 version = "0.2.0"
 authors = [
     { name="Santeri Oksanen", email="santerioksanen@gmail.com" }

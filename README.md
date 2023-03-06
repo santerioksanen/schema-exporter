@@ -14,11 +14,12 @@ Generate interfaces/structs with `export_mappings(path: Path, language: str = ("
 
 Example:
 _schemas.py_
+
 ```python
 from enum import Enum
 from marshmallow import Schema, fields
 from marshmallow_enum import EnumField
-from marshmallow_export import export_schema
+from schema_exporter import export_marshmallow_schema
 
 
 class TestEnum(Enum):
@@ -32,7 +33,7 @@ class LeafSchema(Schema):
     uuid_field = fields.UUID(required=True, dump_only=True)
 
 
-@export_schema()
+@export_marshmallow_schema()
 class RootSchema(Schema):
     leaf_field = fields.Nested(LeafSchema, required=True)
     leaf_list_1 = fields.Nested(LeafSchema, many=True, required=True)
@@ -40,10 +41,10 @@ class RootSchema(Schema):
 ```
 
 _export_schemas.py_
-```python
-from marshmallow_export import export_mappings
-from pathlib import Path
 
+```python
+from schema_exporter import export_mappings
+from pathlib import Path
 
 path = Path().cwd() / 'output.ts'
 export_mappings(path, 'typescript')
@@ -130,19 +131,19 @@ The `@export_schema()` decorator takes two optional arguments. Namespace may be 
 
 ```python
 from marshmallow import Schema, fields
-from marshmallow_export import export_schema
-from marshmallow_export.types import Mapping
+from schema_exporter import export_marshmallow_schema
+from schema_exporter.types import Mapping
 
 
-@export_schema(namespace='import,export',
-               rust_enum_derives=[
-                   Mapping(mapping='Debug'),
-                   Mapping(mapping='Serialize', imports={'serde': ['Clone']})
-               ],
-               rust_struct_derives=[
-                   Mapping(mapping='Debug'),
-                   Mapping(mapping='Deserialize', imports={'serde': ['Deserialize']})
-               ])
+@export_marshmallow_schema(namespace='import,export',
+                           rust_enum_derives=[
+                               Mapping(mapping='Debug'),
+                               Mapping(mapping='Serialize', imports={'serde': ['Clone']})
+                           ],
+                           rust_struct_derives=[
+                               Mapping(mapping='Debug'),
+                               Mapping(mapping='Deserialize', imports={'serde': ['Deserialize']})
+                           ])
 class FooSchema(Schema):
     bar = fields.Integer()
 ```

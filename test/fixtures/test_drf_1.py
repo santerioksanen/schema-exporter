@@ -5,7 +5,7 @@ from pathlib import Path
 # from marshmallow_enum import EnumField
 from rest_framework import serializers
 
-from marshmallow_export import export_mappings, export_serializer
+from schema_exporter import export_drf_serializer, export_mappings
 
 # class TestEnum1(Enum):
 #    A = "a"
@@ -37,7 +37,7 @@ class MiddleSerializer(serializers.Serializer):
     leaf_schema = LeafSerializer()
 
 
-@export_serializer(namespace="default")
+@export_drf_serializer(namespace="default")
 class RootSerializer(serializers.Serializer):
     nested_leaf_1 = MiddleSerializer()
     nested_leaf_2 = MiddleSerializer(many=True)
@@ -46,7 +46,7 @@ class RootSerializer(serializers.Serializer):
     # test_enum_1_marshmallow = fields.Enum(TestEnum1)
 
 
-@export_serializer(namespace="default")
+@export_drf_serializer(namespace="default")
 class RootSerializer2(serializers.Serializer):
     nested_leaf_1 = LeafSerializer2(
         required=True

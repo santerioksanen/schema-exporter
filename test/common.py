@@ -1,6 +1,6 @@
 from enum import Enum, auto
 
-from marshmallow_export.types import ParsedField, ParsedSchema, PythonDatatypes
+from schema_exporter.types import ParsedField, ParsedSchema, PythonDatatypes
 
 
 class TestEnum(Enum):

@@ -27,13 +27,13 @@ jobs:
           python -m pip install -e .[dev]
       - name: Lint with flake8
         run: |
-          flake8 marshmallow_export --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 schema_exporter --count --select=E9,F63,F7,F82 --show-source --statistics
           flake8 test --count --select=E9,F63,F7,F82 --show-source --statistics
-          flake8 marshmallow_export --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+          flake8 schema_exporter --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
           flake8 test --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       - name: Run mypy
         run: |
-          mypy marshmallow_export
+          mypy schema_exporter
       - name: Test with unittest
         run: |
           python test.py

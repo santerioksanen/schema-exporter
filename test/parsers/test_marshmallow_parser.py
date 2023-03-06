@@ -3,9 +3,9 @@ from enum import Enum
 from marshmallow import Schema, fields
 from marshmallow_enum import EnumField
 
-from marshmallow_export.parsers.marshmallow_mappings import marshmallow_mappings
-from marshmallow_export.parsers.marshmallow_parser import MarshmallowParser
-from marshmallow_export.types import PythonDatatypes
+from schema_exporter.parsers.marshmallow_mappings import marshmallow_mappings
+from schema_exporter.parsers.marshmallow_parser import MarshmallowParser
+from schema_exporter.types import PythonDatatypes
 
 from ._common import BaseParserTests
 

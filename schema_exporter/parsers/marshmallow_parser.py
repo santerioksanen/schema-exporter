@@ -3,8 +3,8 @@ from typing import Any, Dict, List, Set, Tuple, Type, Union
 
 from marshmallow import Schema, fields
 
-from marshmallow_export.parsers.marshmallow_mappings import marshmallow_mappings
-from marshmallow_export.types import ParsedField, ParsedSchema
+from schema_exporter.parsers.marshmallow_mappings import marshmallow_mappings
+from schema_exporter.types import ParsedField, ParsedSchema
 
 from .base_parser import BaseParser
 

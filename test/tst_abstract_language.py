@@ -5,8 +5,8 @@ from typing import Any, Dict, List
 from marshmallow import Schema, fields
 from marshmallow_enum import EnumField
 
-from marshmallow_export.languages.base_language import BaseLanguage
-from marshmallow_export.types import EnumInfo, SchemaInfo
+from schema_exporter.languages.base_language import BaseLanguage
+from schema_exporter.types import EnumInfo, SchemaInfo
 
 
 class FooSchema(Schema):

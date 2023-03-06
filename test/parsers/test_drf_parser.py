@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
-from marshmallow_export.parsers.drf_parser import DRFParser, _create_enum_from_choices
-from marshmallow_export.types import PythonDatatypes
+from schema_exporter.parsers.drf_parser import DRFParser, _create_enum_from_choices
+from schema_exporter.types import PythonDatatypes
 
 from ._common import BaseParserTests
 

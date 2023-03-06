@@ -2,7 +2,7 @@ from typing import Dict, Type
 
 from rest_framework import serializers
 
-from marshmallow_export.types import PythonDatatypes
+from schema_exporter.types import PythonDatatypes
 
 drf_mappings: Dict[Type[serializers.Field], PythonDatatypes] = {
     serializers.BooleanField: PythonDatatypes.BOOL,

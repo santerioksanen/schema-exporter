@@ -39,14 +39,14 @@ _register_language(Typescript)
 _register_language(Rust)
 
 
-def _add_schema(
+def _add_marshmallow_schema(
     namespaces: List[str], cls: Type[Schema], parsed_args: Dict[str, Any]
 ) -> None:
     for n in namespaces:
         __schemas[n][cls] = SchemaInfo(kwargs=parsed_args)
 
 
-def _add_serializer(
+def _add_drf_serializer(
     namespaces: List[str], cls: Type[Serializer], parsed_args: Dict[str, Any]
 ) -> None:
     for n in namespaces:
@@ -83,7 +83,7 @@ def _validate_and_split_namespace(namespace: str) -> list[str]:
     return namespace.split(",")
 
 
-def export_schema(namespace: str = "default", **kwargs):
+def export_marshmallow_schema(namespace: str = "default", **kwargs):
     """A simple wrapper to register a Marshmallow schema to be exported.
     With default export configurations the export functions adds
     all nested schemas to the export as well.
@@ -102,7 +102,7 @@ def export_schema(namespace: str = "default", **kwargs):
                 f"Trying to export schema of type: {type(cls)}, which is not supported"
             )
 
-        _add_schema(namespaces, cls, parsed_args)
+        _add_marshmallow_schema(namespaces, cls, parsed_args)
 
         return cls
 
@@ -129,7 +129,7 @@ def export_enum(namespce: str = "default", **kwargs):
     return decorate
 
 
-def export_serializer(namespace: str = "default", **kwargs):
+def export_drf_serializer(namespace: str = "default", **kwargs):
     """A simple wrapper to register a DRF serializer to be exported.
     With default export configurations the export functions adds
     all nested serializers to the export as well.
@@ -148,7 +148,7 @@ def export_serializer(namespace: str = "default", **kwargs):
                 f"Trying to export serializer of type: {type(cls)}, which is not supported"
             )
 
-        _add_serializer(namespaces, cls, parsed_args)
+        _add_drf_serializer(namespaces, cls, parsed_args)
         return cls
 
     return decorate

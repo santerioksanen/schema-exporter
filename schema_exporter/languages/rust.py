@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, Dict, List, Set, Type
 
-from marshmallow_export.types import (
+from schema_exporter.types import (
     EnumInfo,
     Mapping,
     ParsedField,

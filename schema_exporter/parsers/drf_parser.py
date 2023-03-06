@@ -3,8 +3,8 @@ from typing import Any, Dict, List, Set, Tuple, Type, Union
 
 from rest_framework import serializers
 
-from marshmallow_export.parsers.drf_mappings import drf_mappings
-from marshmallow_export.types import ParsedField, ParsedSchema
+from schema_exporter.parsers.drf_mappings import drf_mappings
+from schema_exporter.types import ParsedField, ParsedSchema
 
 from .base_parser import BaseParser
 

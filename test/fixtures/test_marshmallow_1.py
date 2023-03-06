@@ -4,7 +4,7 @@ from pathlib import Path
 from marshmallow import Schema, fields
 from marshmallow_enum import EnumField
 
-from marshmallow_export import export_mappings, export_schema
+from schema_exporter import export_mappings, export_marshmallow_schema
 
 
 class TestEnum1(Enum):
@@ -38,7 +38,7 @@ class MiddleSchema(Schema):
     leaf_schema = fields.Nested(LeafSchema)
 
 
-@export_schema(namespace="default")
+@export_marshmallow_schema(namespace="default")
 class RootSchema(Schema):
     nested_leaf_1 = fields.Nested(MiddleSchema)
     nested_leaf_2 = fields.Nested(MiddleSchema, many=True)
@@ -47,7 +47,7 @@ class RootSchema(Schema):
     test_enum_1_marshmallow = fields.Enum(TestEnum1)
 
 
-@export_schema(namespace="default")
+@export_marshmallow_schema(namespace="default")
 class RootSchema2(Schema):
     nested_leaf_1 = fields.Nested(LeafSchema2, required=True)
 

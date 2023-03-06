@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Any, Dict, Generic, Set, Tuple, Type, TypeVar, Union
 
-from marshmallow_export.types import EnumInfo, ParsedField, ParsedSchema
+from schema_exporter.types import EnumInfo, ParsedField, ParsedSchema
 
 S = TypeVar("S")
 F = TypeVar("F")

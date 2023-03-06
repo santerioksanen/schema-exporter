@@ -2,8 +2,8 @@ import unittest
 
 from common import TestEnum, TestEnumAuto, test_schema
 
-from marshmallow_export.languages import Typescript
-from marshmallow_export.types import EnumInfo
+from schema_exporter.languages import Typescript
+from schema_exporter.types import EnumInfo
 
 TEST_ENUM_TS = """export enum TestEnum {
   A = "a",

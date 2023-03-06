@@ -4,8 +4,8 @@ from copy import copy
 from common import TestEnum, TestEnumAuto
 from common import test_schema as base_test_schema
 
-from marshmallow_export.languages import Rust
-from marshmallow_export.types import EnumInfo, Mapping, SchemaInfo
+from schema_exporter.languages import Rust
+from schema_exporter.types import EnumInfo, Mapping, SchemaInfo
 
 mappings = [
     Mapping(mapping="Clone"),
