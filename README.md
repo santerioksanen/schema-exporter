@@ -10,11 +10,13 @@ Install with `pip install git+https://github.com/santerioksanen/schema-exporter.
 ## Basic
 Decorate marshmallow-schemas to export with `@export_marshmallow_schema()`. With default settings all nested schemas and Enum fields are automatically loaded as well. Furthermore, with default settings Schema is stripped from the schema name.
 
-For Django Rest Framework serializers use the `@export_drf_serializer()` decorator in similar fashion.
+For Django Rest Framework serializers use the `@export_drf_serializer()` decorator in similar fashion. Here as well the Serializer is stripped from the serializer name.
 
 And to export plain Enums, you can use the `@export_enum()` decorator similarly.
 
 Generate interfaces/structs with `export_mappings(path: Path, language: str = ("typescript"|"rust"))`
+
+Please note that with default export settings all nested schemas/serializers/enums are added to the export as well. So no need to explicitly add the decorator to any leaf nodes.
 
 ## DRF caveats
 * DRF ChoiceFields are treated as Enums
@@ -58,6 +60,30 @@ class RootSerializer2(serializers.Serializer):
         required=True
     ) 
 ```
+Django management command:
+_export_serializers.py_
+```python
+from pathlib import Path
+from django.core.management.base import BaseCommand
+from schema_exporter import export_mappings
+
+
+class Command(BaseCommand):
+    help = "Exports serializers as typescript and rust"
+
+    def handle(self, *args, **options):
+        ts_export_to = Path.cwd() / "output.ts"
+        rust_export_to = Path.cwd() / "output.rs"
+        export_mappings(
+            ts_export_to,
+            "typescript"
+        )
+        export_mappings(
+            rs_export_to,
+            "rust"
+        )
+```
+
 _output.ts_
 ```typescript
 export enum TestEnum1 {
