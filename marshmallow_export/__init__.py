@@ -149,6 +149,7 @@ def export_serializer(namespace: str = "default", **kwargs):
             )
 
         _add_serializer(namespaces, cls, parsed_args)
+        return cls
 
     return decorate
 

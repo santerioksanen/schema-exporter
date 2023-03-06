@@ -31,4 +31,6 @@ drf_mappings: Dict[Type[serializers.Field], PythonDatatypes] = {
     serializers.PrimaryKeyRelatedField: PythonDatatypes.INT,
     serializers.HyperlinkedRelatedField: PythonDatatypes.URL,
     serializers.HyperlinkedIdentityField: PythonDatatypes.URL,
+    serializers.SerializerMethodField: PythonDatatypes.STRING,
+    serializers.HiddenField: PythonDatatypes.STRING,
 }
