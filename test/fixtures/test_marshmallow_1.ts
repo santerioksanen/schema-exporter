@@ -38,4 +38,5 @@ export interface Root {
   nested_leaf_2?: Middle[];
   list_leaf_1?: Middle[];
   test_enum_1?: TestEnum1;
+  test_enum_1_marshmallow?: TestEnum1;
 }

@@ -1,17 +1,16 @@
 from enum import Enum, auto
+from pathlib import Path
 
-from marshmallow import fields, Schema
+from marshmallow import Schema, fields
 from marshmallow_enum import EnumField
 
-from marshmallow_export import export_schema, export_mappings
-
-from pathlib import Path
+from schema_exporter import export_mappings, export_marshmallow_schema
 
 
 class TestEnum1(Enum):
-    A = 'a'
-    B = 'b'
-    C = 'c'
+    A = "a"
+    B = "b"
+    C = "c"
 
 
 class TestEnum2(Enum):
@@ -39,27 +38,22 @@ class MiddleSchema(Schema):
     leaf_schema = fields.Nested(LeafSchema)
 
 
-@export_schema(namespace='default')
+@export_marshmallow_schema(namespace="default")
 class RootSchema(Schema):
     nested_leaf_1 = fields.Nested(MiddleSchema)
     nested_leaf_2 = fields.Nested(MiddleSchema, many=True)
     list_leaf_1 = fields.List(fields.Nested(MiddleSchema))
     test_enum_1 = EnumField(TestEnum1)
+    test_enum_1_marshmallow = fields.Enum(TestEnum1)
 
 
-@export_schema(namespace='default')
+@export_marshmallow_schema(namespace="default")
 class RootSchema2(Schema):
     nested_leaf_1 = fields.Nested(LeafSchema2, required=True)
 
 
-p = Path().cwd() / 'test_schema_1.ts.export'
+p = Path().cwd() / "test_marshmallow_1.ts.export"
 
-export_mappings(
-    p,
-    'typescript'
-)
-p = Path().cwd() / 'test_schema_1.rs.export'
-export_mappings(
-    p,
-    'rust'
-)
+export_mappings(p, "typescript")
+p = Path().cwd() / "test_marshmallow_1.rs.export"
+export_mappings(p, "rust")
