@@ -29,7 +29,7 @@ class BaseLanguage(metaclass=ABCMeta):
         if field.export_name is not None:
             return field.export_name
 
-        if field.python_datatype is not None:
+        if field.python_datatype is not None and field.python_datatype in self.type_mappings:
             return self.type_mappings[field.python_datatype]
 
         raise ValueError(
