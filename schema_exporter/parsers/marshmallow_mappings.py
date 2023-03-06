@@ -33,4 +33,5 @@ marshmallow_mappings: Dict[Type[fields.Field], PythonDatatypes] = {
     fields.URL: PythonDatatypes.URL,
     fields.UUID: PythonDatatypes.UUID,
     fields.Url: PythonDatatypes.URL,
+    fields.TimeDelta: PythonDatatypes.TIMEDELTA,
 }

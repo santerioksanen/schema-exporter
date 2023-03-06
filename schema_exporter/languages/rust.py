@@ -59,6 +59,13 @@ type_mappings: Dict[PythonDatatypes, Mapping] = {
     # PythonDatatypes.TIMEDELTA: None,
     PythonDatatypes.URL: Types.STRING.value,
     PythonDatatypes.UUID: Types.UUID.value,
+    PythonDatatypes.IP_ADDRESS: Types.STRING.value,
+    PythonDatatypes.IP_INTERFACE: Types.STRING.value,
+    PythonDatatypes.IPv4_ADDRESS: Types.STRING.value,
+    PythonDatatypes.IPv4_INTERFACE: Types.STRING.value,
+    PythonDatatypes.IPv6_ADDRESS: Types.STRING.value,
+    PythonDatatypes.IPv6_INTERFACE: Types.STRING.value,
+    # PythonDatatypes.JSON_FIELD: None,
 }
 
 

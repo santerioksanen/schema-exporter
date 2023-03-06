@@ -109,14 +109,14 @@ def export_marshmallow_schema(namespace: str = "default", **kwargs):
     return decorate
 
 
-def export_enum(namespce: str = "default", **kwargs):
+def export_enum(namespace: str = "default", **kwargs):
     """A simple wrapper to register an Enum to be exported.
 
     Supports providing namespaces, which may be used during export
     phase to limit number of types exported.
     """
     parsed_args = _parse_kwargs(kwargs)
-    namespaces = _validate_and_split_namespace(namespce)
+    namespaces = _validate_and_split_namespace(namespace)
 
     def decorate(cls):
         if not issubclass(cls, Enum):

@@ -25,6 +25,8 @@ type_mappings: Dict[PythonDatatypes, Mapping] = {
     PythonDatatypes.BOOL: Types.BOOL.value,
     PythonDatatypes.CONSTANT: Types.STRING.value,
     PythonDatatypes.DATETIME: Types.DATE.value,
+    PythonDatatypes.DATE: Types.DATE.value,
+    PythonDatatypes.TIME: Types.STRING.value,
     PythonDatatypes.DECIMAL: Types.NUMBER.value,
     PythonDatatypes.DICT: Types.OBJECT.value,
     PythonDatatypes.EMAIL: Types.STRING.value,
@@ -35,9 +37,16 @@ type_mappings: Dict[PythonDatatypes, Mapping] = {
     PythonDatatypes.MAPPING: Types.ANY.value,
     PythonDatatypes.METHOD: Types.ANY.value,
     PythonDatatypes.STRING: Types.STRING.value,
-    PythonDatatypes.TIMEDELTA: Types.ANY.value,
+    PythonDatatypes.TIMEDELTA: Types.NUMBER.value,
     PythonDatatypes.URL: Types.STRING.value,
     PythonDatatypes.UUID: Types.STRING.value,
+    PythonDatatypes.IP_ADDRESS: Types.STRING.value,
+    PythonDatatypes.IP_INTERFACE: Types.STRING.value,
+    PythonDatatypes.IPv4_ADDRESS: Types.STRING.value,
+    PythonDatatypes.IPv4_INTERFACE: Types.STRING.value,
+    PythonDatatypes.IPv6_ADDRESS: Types.STRING.value,
+    PythonDatatypes.IPv6_INTERFACE: Types.STRING.value,
+    PythonDatatypes.JSON_FIELD: Types.OBJECT.value,
 }
 
 
