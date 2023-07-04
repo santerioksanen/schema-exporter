@@ -25,7 +25,7 @@ from .python_native_mappings import python_native_mappings
 is_min_python3_10 = sys.version_info.major == 3 and sys.version_info.minor >= 10
 
 if is_min_python3_10:
-    from types import NoneType, UnionType
+    from types import NoneType, UnionType  # type: ignore
 
 else:
     NoneType = None  # type: ignore
