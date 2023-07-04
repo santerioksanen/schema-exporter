@@ -28,4 +28,5 @@ dev = [
     "black",
     "build",
     "twine",
+    "pytest==7.4.0",
 ]

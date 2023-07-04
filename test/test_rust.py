@@ -1,11 +1,11 @@
 import unittest
 from copy import copy
 
-from common import TestEnum, TestEnumAuto
-from common import test_schema as base_test_schema
-
 from schema_exporter.languages import Rust
 from schema_exporter.types import EnumInfo, Mapping, SchemaInfo
+
+from .common import TestEnum, TestEnumAuto
+from .common import test_schema as base_test_schema
 
 mappings = [
     Mapping(mapping="Clone"),

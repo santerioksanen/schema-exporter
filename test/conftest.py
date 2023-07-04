@@ -12,12 +12,8 @@ def pytest_configure():
                 "NAME": ":memory:",
             }
         },
-        MIDDLEWARE=(
-            "django.middleware.common.CommonMiddleware",
-        ),
-        INSTALLED_APPS=(
-            "rest_framework",
-        )
+        MIDDLEWARE=("django.middleware.common.CommonMiddleware",),
+        INSTALLED_APPS=("rest_framework",),
     )
 
     django.setup()

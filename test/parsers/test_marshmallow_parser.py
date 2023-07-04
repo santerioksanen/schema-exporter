@@ -51,6 +51,7 @@ field_mappings = {
 
 
 class TestEnum(Enum):
+    __test__ = False
     a = 1
     b = 2
 

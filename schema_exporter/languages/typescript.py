@@ -22,6 +22,7 @@ class Types(Enum):
 
 
 type_mappings: Dict[PythonDatatypes, Mapping] = {
+    PythonDatatypes.ANY: Types.ANY.value,
     PythonDatatypes.BOOL: Types.BOOL.value,
     PythonDatatypes.CONSTANT: Types.STRING.value,
     PythonDatatypes.DATETIME: Types.DATE.value,

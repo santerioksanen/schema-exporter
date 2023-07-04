@@ -4,12 +4,14 @@ from schema_exporter.types import ParsedField, ParsedSchema, PythonDatatypes
 
 
 class TestEnum(Enum):
+    __test__ = False
     A = "a"
     B = 2
     C = "C"
 
 
 class TestEnumAuto(Enum):
+    __test__ = False
     A = auto()
     B = auto()
     C = auto()

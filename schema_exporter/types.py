@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Optional, Set, Union
 
 
 class PythonDatatypes(Enum):
+    ANY = auto()
     BOOL = auto()
     CONSTANT = auto()
     STRING = auto()
