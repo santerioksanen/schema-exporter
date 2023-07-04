@@ -66,6 +66,9 @@ class DRFParser(BaseParser[serializers.Serializer, serializers.Field]):
             # Fallback python datatype
             return PythonDatatypes.INT
 
+        if drf_field.field_name is None:
+            return PythonDatatypes.INT
+
         forward_django_field = getattr(django_model, drf_field.field_name, None)
         if forward_django_field is None:
             return PythonDatatypes.INT
@@ -91,7 +94,7 @@ class DRFParser(BaseParser[serializers.Serializer, serializers.Field]):
         if deferred_related_field is None:
             return PythonDatatypes.INT
 
-        related_field = getattr(deferred_related_field, "field", None)
+        related_field = getattr(deferred_related_field, "field")
         if related_field.__class__ not in django_mappings:
             return PythonDatatypes.INT
 
@@ -109,6 +112,9 @@ class DRFParser(BaseParser[serializers.Serializer, serializers.Field]):
             return False, PythonDatatypes.ANY
 
         django_model = serializer.Meta.model
+
+        if drf_field.field_name is None:
+            return False, PythonDatatypes.ANY
 
         django_method = getattr(django_model, drf_field.field_name, None)
         if django_method is None:
