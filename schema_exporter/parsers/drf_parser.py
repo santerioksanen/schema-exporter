@@ -1,5 +1,5 @@
+import sys
 from enum import Enum
-from types import NoneType, UnionType
 from typing import (
     Any,
     Dict,
@@ -21,6 +21,14 @@ from schema_exporter.types import ParsedField, ParsedSchema, PythonDatatypes
 from .base_parser import BaseParser
 from .django_mappings import django_mappings
 from .python_native_mappings import python_native_mappings
+
+is_min_python3_10 = sys.version_info.major == 3 and sys.version_info.minor >= 10
+
+if is_min_python3_10:
+    from types import NoneType, UnionType
+
+else:
+    NoneType = None
 
 
 def _to_pascal_case(s: str) -> str:
@@ -134,7 +142,8 @@ class DRFParser(BaseParser[serializers.Serializer, serializers.Field]):
         if type_hint in python_native_mappings:
             return False, python_native_mappings[type_hint]
 
-        if get_origin(type_hint) is UnionType:
+        union_tuple = (UnionType, Union) if is_min_python3_10 else (Union,)
+        if get_origin(type_hint) in union_tuple:
             type_args = list(get_args(type_hint))
             if len(type_args) != 2 or NoneType not in type_args:
                 return False, PythonDatatypes.ANY

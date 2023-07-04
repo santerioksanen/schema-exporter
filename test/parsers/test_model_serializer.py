@@ -1,3 +1,6 @@
+import sys
+from typing import Union
+
 from django.db import models
 from rest_framework import serializers
 
@@ -5,6 +8,8 @@ from schema_exporter.parsers.drf_parser import DRFParser
 from schema_exporter.types import PythonDatatypes
 
 from ._common import BaseParserTests
+
+is_min_python3_10 = sys.version_info.major == 3 and sys.version_info.minor >= 10
 
 
 class TestModel(models.Model):
@@ -33,13 +38,38 @@ class StringNestedModel(TestModel):
     )
 
 
-class PropertyModel(TestModel):
+if is_min_python3_10:
+
+    class PropertyModel(TestModel):
+        @property
+        def prop_str(self) -> str:
+            return "ABBA"
+
+        @property
+        def opt_prop_str(self) -> str | None:
+            return "ABBA"
+
+        @property
+        def prop_int(self) -> int:
+            return 15
+
+        @property
+        def opt_prop_int(self) -> int | None:
+            return 15
+
+    class PropertySerializer(serializers.ModelSerializer):
+        class Meta:
+            model = PropertyModel
+            fields = ("id", "prop_str", "opt_prop_str", "prop_int", "opt_prop_int")
+
+
+class PropertyUnionModel(TestModel):
     @property
     def prop_str(self) -> str:
         return "ABBA"
 
     @property
-    def opt_prop_str(self) -> str | None:
+    def opt_prop_str(self) -> Union[str, None]:
         return "ABBA"
 
     @property
@@ -47,7 +77,7 @@ class PropertyModel(TestModel):
         return 15
 
     @property
-    def opt_prop_int(self) -> int | None:
+    def opt_prop_int(self) -> Union[int, None]:
         return 15
 
 
@@ -75,9 +105,9 @@ class StringNestedSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class PropertySerializer(serializers.ModelSerializer):
+class PropertyUnionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = PropertyModel
+        model = PropertyUnionModel
         fields = ("id", "prop_str", "opt_prop_str", "prop_int", "opt_prop_int")
 
 
@@ -157,9 +187,7 @@ class ModelSerializerTestCase(BaseParserTests):
             },
         )
 
-    def test_property_serializer(self):
-        self.parser.parse_and_add_schema(PropertySerializer())
-        parsed_schema = self.parser.schemas["Property"]
+    def assert_property_serializer(self, parsed_schema):
         self.assertEqual(len(parsed_schema.fields), 5)
 
         prop_str_field = parsed_schema.fields[1]
@@ -207,3 +235,16 @@ class ModelSerializerTestCase(BaseParserTests):
                 "allow_none": True,
             },
         )
+
+    def test_property_serializer(self):
+        if not is_min_python3_10:
+            return
+
+        self.parser.parse_and_add_schema(PropertySerializer())
+        parsed_schema = self.parser.schemas["Property"]
+        self.assert_property_serializer(parsed_schema)
+
+    def test_property_union_serializer(self):
+        self.parser.parse_and_add_schema(PropertyUnionSerializer())
+        parsed_schema = self.parser.schemas["PropertyUnion"]
+        self.assert_property_serializer(parsed_schema)
