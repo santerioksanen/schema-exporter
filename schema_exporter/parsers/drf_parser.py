@@ -25,10 +25,7 @@ from .python_native_mappings import python_native_mappings
 is_min_python3_10 = sys.version_info.major == 3 and sys.version_info.minor >= 10
 
 if is_min_python3_10:
-    from types import NoneType, UnionType  # type: ignore
-
-else:
-    NoneType = None  # type: ignore
+    from types import UnionType  # type: ignore
 
 
 def _to_pascal_case(s: str) -> str:
@@ -145,10 +142,11 @@ class DRFParser(BaseParser[serializers.Serializer, serializers.Field]):
         union_tuple = (UnionType, Union) if is_min_python3_10 else (Union,)
         if get_origin(type_hint) in union_tuple:
             type_args = list(get_args(type_hint))
-            if len(type_args) != 2 or NoneType not in type_args:
+            print(type_args)
+            if len(type_args) != 2 or type(None) not in type_args:
                 return False, PythonDatatypes.ANY
 
-            type_args.remove(NoneType)
+            type_args.remove(type(None))
 
             if type_args[0] in python_native_mappings:
                 return True, python_native_mappings[type_args[0]]

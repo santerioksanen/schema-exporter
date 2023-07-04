@@ -20,5 +20,5 @@ class BaseParserTests(unittest.TestCase):
             self.assertEqual(
                 getattr(parsed_field, key),
                 value,
-                f"Key: {key} mismatch, expected: {value}, was: {getattr(parsed_field, key)}",
+                f"Key: {key} mismatch for {parsed_field.field_name}, expected: {value}, was: {getattr(parsed_field, key)}",
             )
