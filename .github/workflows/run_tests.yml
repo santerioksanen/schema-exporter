@@ -34,6 +34,6 @@ jobs:
       - name: Run mypy
         run: |
           mypy schema_exporter
-      - name: Test with unittest
+      - name: Test with pytest
         run: |
-          python test.py
+          pytest
