@@ -28,7 +28,7 @@ if is_min_python3_10:
     from types import NoneType, UnionType
 
 else:
-    NoneType = None
+    NoneType = None  # type: ignore
 
 
 def _to_pascal_case(s: str) -> str:
