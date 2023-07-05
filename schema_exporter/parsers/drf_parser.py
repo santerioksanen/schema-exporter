@@ -87,15 +87,16 @@ class DRFParser(BaseParser[serializers.Serializer, serializers.Field]):
         if related_model is None or len(related_field_names) == 0:
             return PythonDatatypes.INT
 
+        related_field_name = related_field_names[0]
         remote_field = getattr(django_field, "remote_field", None)
-        if remote_field is None:
+        if remote_field is None or related_field_name is None:
             return PythonDatatypes.INT
 
         remote_model = getattr(remote_field, "model", None)
         if remote_model is None:
             return PythonDatatypes.INT
 
-        deferred_related_field = getattr(remote_model, related_field_names[0], None)
+        deferred_related_field = getattr(remote_model, related_field_name, None)
         if deferred_related_field is None:
             return PythonDatatypes.INT
 
