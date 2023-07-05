@@ -1,9 +1,9 @@
 import unittest
 
-from common import TestEnum, TestEnumAuto, test_schema
-
 from schema_exporter.languages import Typescript
 from schema_exporter.types import EnumInfo
+
+from .common import TestEnum, TestEnumAuto, test_schema
 
 TEST_ENUM_TS = """export enum TestEnum {
   A = "a",

@@ -8,12 +8,14 @@ from schema_exporter import export_mappings, export_marshmallow_schema
 
 
 class TestEnum1(Enum):
+    __test__ = False
     A = "a"
     B = "b"
     C = "c"
 
 
 class TestEnum2(Enum):
+    __test__ = False
     A = auto()
     B = auto()
     C = auto()
