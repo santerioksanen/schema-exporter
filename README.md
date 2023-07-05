@@ -93,31 +93,31 @@ export enum TestEnum1 {
 }
 
 export interface Leaf {
-  bool_1: boolean;
-  datetime_1: Date;
-  decimal_1: number;
-  int_1: number;
+  bool_1: boolean
+  datetime_1: string
+  decimal_1: number
+  int_1: number
 }
 
 export interface Leaf2 {
-  datetime_1?: Date;
-  integer_1?: number;
-  many_1: string[];
+  datetime_1?: string
+  integer_1?: number
+  many_1: string[]
 }
 
 export interface Middle {
-  test_enum_1: TestEnum1;
-  leaf_schema: Leaf;
+  test_enum_1: TestEnum1
+  leaf_schema: Leaf
 }
 
 export interface Root2 {
-  nested_leaf_1: Leaf2;
+  nested_leaf_1: Leaf2
 }
 
 export interface Root {
-  nested_leaf_1: Middle;
-  nested_leaf_2: Middle[];
-  list_leaf_1: Middle[];
+  nested_leaf_1: Middle
+  nested_leaf_2: Middle[]
+  list_leaf_1: Middle[]
 }
 ```
 _output.rs_
@@ -219,16 +219,16 @@ export enum TestEnum {
 }
 
 export interface Leaf {
-    enum_field?: TestEnum;
-    integer_field?: number;
-    date_time_field: Date;
-    uuid_field: String;
+    enum_field?: TestEnum
+    integer_field?: number
+    date_time_field: string
+    uuid_field: string
 }
 
 export interface Root {
-    leaf_field: Leaf;
-    leaf_list_1: Leaf[];
-    leaf_lsit_2?: Leaf[];
+    leaf_field: Leaf
+    leaf_list_1: Leaf[]
+    leaf_lsit_2?: Leaf[]
 }
 ```
 
@@ -267,14 +267,14 @@ export enum TestEnum {
 }
 
 export interface Leaf {
-    enum_field?: TestEnum;
-    date_field: Date;
+    enum_field?: TestEnum
+    date_field: string
 }
 
 export interface Root {
-    leaf_field: Leaf;
-    leaf_list_1?: Leaf[];
-    leaf_lsit_2?: Leaf[];
+    leaf_field: Leaf
+    leaf_list_1?: Leaf[]
+    leaf_lsit_2?: Leaf[]
 }
 ```
 
@@ -395,30 +395,30 @@ $ python test.py
 | fields.TimeDelta | PythonDatatypes.TIMEDELTA |
 
 # Typescript implementations
-| Internal datatype                              | Typescript          |
-|------------------------------------------------|---------------------|
-| PythonDatatypes.BOOL                           | Types.BOOL.value    |
-| PythonDatatypes.CONSTANT                       | Types.STRING.value  |       
-| PythonDatatypes.DATETIME                       | Types.DATE.value    |     
-| PythonDatatypes.DATE                           | Types.DATE.value    |             
-| PythonDatatypes.TIME                           | Types.STRING.value  |           
-| PythonDatatypes.DECIMAL                        | Types.NUMBER.value  |        
-| PythonDatatypes.DICT                           | Types.OBJECT.value  |       
-| PythonDatatypes.EMAIL                          | Types.STRING.value  |          
-| PythonDatatypes.FIELD                          | Types.ANY.value     |        
-| PythonDatatypes.FLOAT                          | Types.NUMBER.value  |          
-| PythonDatatypes.FUNCTION                       | Types.ANY.value     |        
-| PythonDatatypes.INT                            | Types.NUMBER.value  |            
-| PythonDatatypes.MAPPING                        | Types.ANY.value     |          
-| PythonDatatypes.METHOD                         | Types.ANY.value     |
-| PythonDatatypes.STRING                         | Types.STRING.value  |         
-| PythonDatatypes.TIMEDELTA                      | Types.NUMBER.value  |      
-| PythonDatatypes.URL                            | Types.STRING.value  |    
-| PythonDatatypes.UUID                           | Types.STRING.value  |           
-| PythonDatatypes.IP_ADDRESS                     | Types.STRING.value  |     
-| PythonDatatypes.IP_INTERFACE                   | Types.STRING.value  |   
-| PythonDatatypes.IPv4_ADDRESS                   | Types.STRING.value  |  
-| PythonDatatypes.IPv4_INTERFACE                 | Types.STRING.value  | 
-| PythonDatatypes.IPv6_ADDRESS                   | Types.STRING.value  |
-| PythonDatatypes.IPv6_INTERFACE                 | Types.STRING.value  | 
-| PythonDatatypes.JSON_FIELD |  Types.OBJECT.value |
+| Internal datatype                              | Typescript         |
+|------------------------------------------------|--------------------|
+| PythonDatatypes.BOOL                           | Types.BOOL.value   |
+| PythonDatatypes.CONSTANT                       | Types.STRING.value |       
+| PythonDatatypes.DATETIME                       | Types.STRIG.value  |     
+| PythonDatatypes.DATE                           | Types.STRING.value |             
+| PythonDatatypes.TIME                           | Types.STRING.value |           
+| PythonDatatypes.DECIMAL                        | Types.NUMBER.value |        
+| PythonDatatypes.DICT                           | Types.OBJECT.value |       
+| PythonDatatypes.EMAIL                          | Types.STRING.value |          
+| PythonDatatypes.FIELD                          | Types.ANY.value    |        
+| PythonDatatypes.FLOAT                          | Types.NUMBER.value |          
+| PythonDatatypes.FUNCTION                       | Types.ANY.value    |        
+| PythonDatatypes.INT                            | Types.NUMBER.value |            
+| PythonDatatypes.MAPPING                        | Types.ANY.value    |          
+| PythonDatatypes.METHOD                         | Types.ANY.value    |
+| PythonDatatypes.STRING                         | Types.STRING.value |         
+| PythonDatatypes.TIMEDELTA                      | Types.NUMBER.value |      
+| PythonDatatypes.URL                            | Types.STRING.value |    
+| PythonDatatypes.UUID                           | Types.STRING.value |           
+| PythonDatatypes.IP_ADDRESS                     | Types.STRING.value |     
+| PythonDatatypes.IP_INTERFACE                   | Types.STRING.value |   
+| PythonDatatypes.IPv4_ADDRESS                   | Types.STRING.value |  
+| PythonDatatypes.IPv4_INTERFACE                 | Types.STRING.value | 
+| PythonDatatypes.IPv6_ADDRESS                   | Types.STRING.value |
+| PythonDatatypes.IPv6_INTERFACE                 | Types.STRING.value | 
+| PythonDatatypes.JSON_FIELD | Types.OBJECT.value |
