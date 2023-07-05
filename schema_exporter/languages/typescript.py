@@ -25,8 +25,8 @@ type_mappings: Dict[PythonDatatypes, Mapping] = {
     PythonDatatypes.ANY: Types.ANY.value,
     PythonDatatypes.BOOL: Types.BOOL.value,
     PythonDatatypes.CONSTANT: Types.STRING.value,
-    PythonDatatypes.DATETIME: Types.DATE.value,
-    PythonDatatypes.DATE: Types.DATE.value,
+    PythonDatatypes.DATETIME: Types.STRING.value,
+    PythonDatatypes.DATE: Types.STRING.value,
     PythonDatatypes.TIME: Types.STRING.value,
     PythonDatatypes.DECIMAL: Types.NUMBER.value,
     PythonDatatypes.DICT: Types.OBJECT.value,
@@ -99,7 +99,7 @@ class Typescript(BaseLanguage):
         if field.dump_only:
             readonly = "readonly "
 
-        return f"  {readonly}{field_name}: {export_type};"
+        return f"  {readonly}{field_name}: {export_type}"
 
     def _format_schema(
         self, schema: ParsedSchema, schema_fields: List[ParsedField]

@@ -20,42 +20,42 @@ TEST_ENUM_AUTO_TS = """export enum TestEnumAuto {
 """
 
 TEST_SCHEMA_TS = """export interface Test {
-  load_only?: number;
-  readonly dump_only?: number;
-  required: number;
-  allow_none?: number | null;
-  required_allow_none: number | null;
-  nested?: Nested;
-  nested_many?: Nested[];
-  enum_field?: TestEnum;
-  datetime_field?: Date;
-  uuid_field?: string;
+  load_only?: number
+  readonly dump_only?: number
+  required: number
+  allow_none?: number | null
+  required_allow_none: number | null
+  nested?: Nested
+  nested_many?: Nested[]
+  enum_field?: TestEnum
+  datetime_field?: string
+  uuid_field?: string
 }
 """
 
 TEST_SCHEMA_TS_NOT_LOAD_ONLY = """export interface Test {
-  readonly dump_only?: number;
-  required: number;
-  allow_none?: number | null;
-  required_allow_none: number | null;
-  nested?: Nested;
-  nested_many?: Nested[];
-  enum_field?: TestEnum;
-  datetime_field?: Date;
-  uuid_field?: string;
+  readonly dump_only?: number
+  required: number
+  allow_none?: number | null
+  required_allow_none: number | null
+  nested?: Nested
+  nested_many?: Nested[]
+  enum_field?: TestEnum
+  datetime_field?: string
+  uuid_field?: string
 }
 """
 
 TEST_SCHEMA_TS_NOT_DUMP_ONLY = """export interface Test {
-  load_only?: number;
-  required: number;
-  allow_none?: number | null;
-  required_allow_none: number | null;
-  nested?: Nested;
-  nested_many?: Nested[];
-  enum_field?: TestEnum;
-  datetime_field?: Date;
-  uuid_field?: string;
+  load_only?: number
+  required: number
+  allow_none?: number | null
+  required_allow_none: number | null
+  nested?: Nested
+  nested_many?: Nested[]
+  enum_field?: TestEnum
+  datetime_field?: string
+  uuid_field?: string
 }
 """
 
